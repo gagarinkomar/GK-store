@@ -1,8 +1,12 @@
 {% extends "base.html" %}
 
+{% block title %}
+    {{ title }}
+{% endblock %}
+
 {% block content %}
-    <h1>Регистрация</h1>
-    <form action="" method="post">
+    <h1>{{ title }}</h1>
+    <form action="" method="post" enctype="multipart/form-data">
         {{ form.hidden_tag() }}
         {{ form.csrf_token }}
         <p>
@@ -33,8 +37,17 @@
             {% endfor %}
         </p>
         <p>
+            {{ form.avatar_source.label }}<br>
+            {{ form.avatar_source(class="form-control") }}<br>
+            {% for error in form.avatar_source.errors %}
+                <p class="alert alert-danger" role="alert">
+                    {{ error }}
+                </p>
+            {% endfor %}
+        </p>
+        <p>
             {{ form.phone_number.label }}<br>
-            {{ form.phone_number(class="form-control") }}<br>
+            {{ form.phone_number(class="form-control", type="tel") }}<br>
             {% for error in form.phone_number.errors %}
                 <p class="alert alert-danger" role="alert">
                     {{ error }}

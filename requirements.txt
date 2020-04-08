@@ -2,3 +2,5 @@ flask
 sqlalchemy
 flask-wtf
 flask-login
+flask-uploads
+werkzeug==0.16.1

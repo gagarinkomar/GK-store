@@ -37,6 +37,6 @@ class User(SqlAlchemyBase, UserMixin):
                                      default=datetime.datetime.now)
     avatar_source = sqlalchemy.Column(sqlalchemy.String,
                                       default=os.path.join(
-                                          'static', 'img', 'default_avatar.png'
+                                          'uploads', 'img', 'default_avatar.png'
                                       ))
     products = orm.relation('Product', back_populates='user')
