@@ -18,6 +18,5 @@ class Transaction(SqlAlchemyBase):
     status = sqlalchemy.Column(sqlalchemy.String)
     date = sqlalchemy.Column(sqlalchemy.DateTime,
                              default=datetime.datetime.now)
-    seller = orm.relation('???')
-    buyer = orm.relation('???')
+
     product = orm.relation('Product')

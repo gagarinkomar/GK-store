@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    {% block head %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="icon" type="image/png" href="/static/img/logo.png">
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+          crossorigin="anonymous">
+    <title>{% block title %}{% endblock %}</title>
+    {% endblock %}
+</head>
+<body>
+<header>
+    <nav class="navbar navbar-dark" style="background-color: #30D5C8;">
+        <a class="navbar-brand" href="/">
+            <img src="/static/img/logo.png" width="30" height="30" class="d-inline-block align-top" alt="">
+            GK-store
+        </a>
+    </nav>
+</header>
+<main role="main" class="container">
+    {% block content %}{% endblock %}
+</main>
+<footer class="page-footer font-small pt-4" style="background-color: #30D5C8;">
+    <div class="footer-copyright text-center py-2">© 2020 GK production:
+        <a href="https://github.com/gagarinkomar/">github.com</a>
+    </div>
+</footer>
+</body>
+</html>

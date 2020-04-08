@@ -1,3 +1,4 @@
+import os
 import datetime
 import sqlalchemy
 from sqlalchemy import orm
@@ -21,6 +22,8 @@ class Product(SqlAlchemyBase):
     is_sold = sqlalchemy.Column(sqlalchemy.Boolean, default=False)
     created_date = sqlalchemy.Column(sqlalchemy.DateTime,
                                      default=datetime.datetime.now)
+    image_source = sqlalchemy.Column(sqlalchemy.String, default=os.path.join(
+        'static', 'img', 'default_image.png'))
     user = orm.relation('User')
     categories = orm.relation('Category',
                               secondary='product_to_category',
