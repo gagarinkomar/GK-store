@@ -36,9 +36,7 @@ class User(SqlAlchemyBase, UserMixin):
     last_changed_date = sqlalchemy.Column(sqlalchemy.DateTime,
                                      default=datetime.datetime.now)
     avatar_source = sqlalchemy.Column(sqlalchemy.String,
-                                      default=os.path.join(
-                                          'uploads', 'img', 'default_avatar.png'
-                                      ))
+                                      default='default_avatar.png')
     products = orm.relation('Product', back_populates='user')
     if permission == 'seller':
         transactions = orm.relation('Transaction', back_populates='seller')

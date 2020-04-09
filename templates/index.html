@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}
+    GK-store
+{% endblock %}
+
+{% block btns_on_nav %}
+    {% if current_user.is_authenticated %}
+        <p>
+            {% if current_user.permission == 'seller' %}
+                <a href="product" class="btn btn-secondary">Добавить товар</a>
+            {% endif %}
+            <a class="navbar-brand" href="/logout">{{ current_user.name }}</a>
+        </p>
+    {% else %}
+        <p>
+            <a class="btn btn-info" href="/register">Зарегистрироваться</a>
+            <a class="btn btn-warning" href="/login">Войти</a>
+        </p>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <h1 align="center" >Список товаров</h1>
+    <table class="table">
+        {% for product, image_source in products %}
+            {% if current_user.is_authenticated or product.is_published %}
+                <tr>
+                    <td class="table-primary" width="20%"><img height="100px" src="{{ image_source }}"></td>
+                    <td class="table-primary">
+                        <h4>{{ product.title }}</h4>
+                        <p>{{ product.about }}</p>
+                    </td>
+                    <td class="table-warning" align="center"><b>{{ product.price }} руб</b></td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+    </table>
+
+    {% for job in jobs%}
+        <table class="table">
+            <h3>Action #{{ job.id }}</h3>
+            <tr class="table-active">
+                <td width="35%">Title of activity</td>
+                <td width="20%">Team leader</td>
+                <td width="10%">Duration</td>
+                <td width="10%">List of collaborators</td>
+                <td width="15%">Is finished</td>
+            </tr>
+            <tr>
+                <td class="table-primary">{{ job.job }}</td>
+                <td class="table-primary">{{ job.user.surname }} {{ job.user.name }}</td>
+                <td class="table-primary">{{ job.work_size }}</td>
+                <td class="table-primary">{{ job.collaborators }}</td>
+                {% if job.is_finished %}
+                <td class="table-success">Is finished</td>
+                {% else %}
+                <td class="table-danger">Is not finished</td>
+                {% endif %}
+            </tr>
+        </table>
+    {% endfor %}
+{% endblock %}

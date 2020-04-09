@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, redirect, abort, request
+from flask import Flask, render_template, redirect, abort, request, url_for
 from flask_login import LoginManager, login_user, login_required, logout_user,\
     current_user
 from flask_uploads import configure_uploads, IMAGES, UploadSet
@@ -14,7 +14,7 @@ from data.forms import RegisterForm, LoginForm, ProductForm
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '474B70726F64756374696F6E5F3533637233375F6B3379'
-app.config['UPLOADED_IMAGES_DEST'] = os.path.join('uploads', 'img')
+app.config['UPLOADED_IMAGES_DEST'] = os.path.join('static', 'img')
 app.config['UPLOADED_PHOTOS_ALLOW'] = set(['png', 'jpg', 'jpeg'])
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
@@ -33,7 +33,10 @@ def load_user(user_id):
 
 @app.route('/')
 def index():
-    return render_template('base.html')
+    session = db_session.create_session()
+    products = session.query(Product).all()
+    products = [(product, url_for('static', filename=f'img/{product.image_source}')) for product in products]
+    return render_template('index.html', products=products)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -61,9 +64,7 @@ def reqister():
         if form.surname.data:
             user.surname = form.surname.data
         if form.avatar_source.data.filename:
-            user.avatar_source = os.path.join(
-                'uploads', 'img', images.save(
-                    form.avatar_source.data))
+            user.avatar_source = images.save(form.avatar_source.data)
         user.set_password(form.password.data)
         session.add(user)
         session.commit()
@@ -110,9 +111,7 @@ def add_product():
             is_published=form.is_published.data
         )
         if form.image_source.data.filename:
-            product.image_source = os.path.join(
-                'uploads', 'img', images.save(
-                    form.image_source.data))
+            product.image_source = images.save(form.image_source.data)
         for category_name in form.categories.data.lower().split(', '):
             if category_name not in map(lambda x: x.name, session.query(Category).all()):
                 category = Category(name=category_name)
@@ -156,9 +155,7 @@ def edit_product(id):
             form.purchased_content = form.purchased_content.data
             product.is_checked = False
             if form.image_source.data.filename:
-                product.image_source = os.path.join(
-                    'uploads', 'img', images.save(
-                        form.image_source.data))
+                product.image_source = images.save(form.image_source.data)
             for category in product.categories:
                 product.categories.remove(category)
             print(len(product.categories))
