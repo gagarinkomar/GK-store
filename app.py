@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, redirect, abort
+from flask import Flask, render_template, redirect, abort, request
 from flask_login import LoginManager, login_user, login_required, logout_user,\
     current_user
 from flask_uploads import configure_uploads, IMAGES, UploadSet
@@ -101,7 +101,7 @@ def add_product():
     form = ProductForm()
     if form.validate_on_submit():
         session = db_session.create_session()
-        user = Product(
+        product = Product(
             user_id=current_user.id,
             title=form.title.data,
             about=form.about.data,
@@ -110,7 +110,7 @@ def add_product():
             is_published=form.is_published.data
         )
         if form.image_source.data.filename:
-            user.image_source = os.path.join(
+            product.image_source = os.path.join(
                 'uploads', 'img', images.save(
                     form.image_source.data))
         for category_name in form.categories.data.lower().split(', '):
@@ -118,11 +118,64 @@ def add_product():
                 category = Category(name=category_name)
                 session.add(category)
                 session.commit()
-            user.categories.append(session.query(Category).filter(Category.name == category_name).first())
-        session.add(user)
+            product.categories.append(session.query(Category).filter(Category.name == category_name).first())
+        session.add(product)
         session.commit()
         return redirect('/')
     return render_template('product.html', title='Добавить товар', form=form)
+
+
+@app.route('/product/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_product(id):
+    if current_user.permission != 'seller':
+        abort(403)
+    form = ProductForm()
+    if request.method == "GET":
+        session = db_session.create_session()
+        product = session.query(Product).filter(
+            Product.id == id, Product.user == current_user).first()
+        if product:
+            form.title.data = product.title
+            form.about.data = product.about
+            form.price.data = product.price
+            form.purchased_content.data = product.purchased_content
+            form.is_published.data = product.is_published
+            form.categories.data = ', '.join(map(lambda x: x.name,
+                                                 product.categories))
+        else:
+            abort(404)
+    if form.validate_on_submit():
+        session = db_session.create_session()
+        product = session.query(Product).filter(
+            Product.id == id, Product.user == current_user).first()
+        if product:
+            product.title = form.title.data
+            product.about = form.about.data
+            product.price = form.price.data
+            form.purchased_content = form.purchased_content.data
+            product.is_checked = False
+            if form.image_source.data.filename:
+                product.image_source = os.path.join(
+                    'uploads', 'img', images.save(
+                        form.image_source.data))
+            for category in product.categories:
+                product.categories.remove(category)
+            print(len(product.categories))
+            for category_name in form.categories.data.lower().split(', '):
+                if category_name not in map(lambda x: x.name,
+                                            session.query(Category).all()):
+                    category = Category(name=category_name)
+                    session.add(category)
+                    session.commit()
+                product.categories.append(session.query(Category).filter(
+                    Category.name == category_name).first())
+            session.commit()
+            return redirect('/')
+        else:
+            abort(404)
+    return render_template('product.html', title='Редактирование товара',
+                           form=form)
 
 
 def main():

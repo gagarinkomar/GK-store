@@ -19,6 +19,7 @@ class Product(SqlAlchemyBase):
     purchased_content = sqlalchemy.Column(sqlalchemy.String)
     is_published = sqlalchemy.Column(sqlalchemy.Boolean, default=True)
     is_sold = sqlalchemy.Column(sqlalchemy.Boolean, default=False)
+    is_checked = sqlalchemy.Column(sqlalchemy.Boolean, default=False)
     created_date = sqlalchemy.Column(sqlalchemy.DateTime,
                                      default=datetime.datetime.now)
     image_source = sqlalchemy.Column(sqlalchemy.String, default=os.path.join(

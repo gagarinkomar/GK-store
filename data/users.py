@@ -40,3 +40,7 @@ class User(SqlAlchemyBase, UserMixin):
                                           'uploads', 'img', 'default_avatar.png'
                                       ))
     products = orm.relation('Product', back_populates='user')
+    if permission == 'seller':
+        transactions = orm.relation('Transaction', back_populates='seller')
+    elif permission == 'buyer':
+        transactions = orm.relation('Transaction', back_populates='buyer')
