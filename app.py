@@ -3,6 +3,7 @@ from flask import Flask, render_template, redirect, abort, request, url_for
 from flask_login import LoginManager, login_user, login_required, logout_user,\
     current_user
 from flask_uploads import configure_uploads, IMAGES, UploadSet
+import datetime
 
 from data import db_session
 from data.users import User
@@ -31,12 +32,19 @@ def load_user(user_id):
     return session.query(User).get(user_id)
 
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def index():
+    choosed_categories = set()
+    if request.method == 'POST':
+        choosed_categories = set(request.form.getlist('categories_checkbox'))
     session = db_session.create_session()
-    products = session.query(Product).all()
-    products = [(product, url_for('static', filename=f'img/{product.image_source}')) for product in products]
-    return render_template('index.html', products=products)
+    products = session.query(Product).filter(Product.is_checked).all()
+    products = [
+        (product, url_for('static', filename=f'img/{product.image_source}'))
+        for product in filter(lambda x: choosed_categories <= set(
+            map(lambda y: y.name, x.categories)), products)]
+    categories = session.query(Category).all()
+    return render_template('index.html', products=products, categories=categories)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -112,7 +120,7 @@ def add_product():
         )
         if form.image_source.data.filename:
             product.image_source = images.save(form.image_source.data)
-        for category_name in form.categories.data.lower().split(', '):
+        for category_name in form.categories.data.lower().split(' '):
             if category_name not in map(lambda x: x.name, session.query(Category).all()):
                 category = Category(name=category_name)
                 session.add(category)
@@ -173,6 +181,9 @@ def edit_product(id):
             abort(404)
     return render_template('product.html', title='Редактирование товара',
                            form=form)
+
+
+
 
 
 def main():

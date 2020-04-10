@@ -21,21 +21,40 @@
 {% endblock %}
 
 {% block content %}
-    <h1 align="center" >Список товаров</h1>
-    <table class="table">
-        {% for product, image_source in products %}
-            {% if current_user.is_authenticated or product.is_published %}
-                <tr>
-                    <td class="table-primary" width="20%"><img height="100px" src="{{ image_source }}"></td>
-                    <td class="table-primary">
-                        <h4>{{ product.title }}</h4>
-                        <p>{{ product.about }}</p>
-                    </td>
-                    <td class="table-warning" align="center"><b>{{ product.price }} руб</b></td>
-                </tr>
-            {% endif %}
-        {% endfor %}
-    </table>
+        <h1 align="center" >Список товаров</h1>
+        <div class="row">
+            <aside class="col-md-2">
+                <div class="side-bar check-box">
+                    <form method="POST" action="/">
+                        <h4>Категории</h4>
+                        <p>
+                            {% for category in categories %}
+                            <input type="checkbox" value={{ category.name }} name="categories_checkbox">{{ category.name.capitalize() }}</input><br>
+                            {% endfor %}
+                        </p>
+                        <button class="btn btn-primary" type="sumbit">Подобрать</button>
+                    </form>
+                </div>
+            </aside>
+            <section class="col-md-10">
+                <table class="table">
+                    {% for product, image_source in products %}
+                        {% if current_user.is_authenticated or product.is_published %}
+                            <tr>
+                                <td class="table-primary" width="20%"><img height="100px" src="{{ image_source }}"></td>
+                                <td class="table-primary">
+                                    <h4>{{ product.title }}</h4>
+                                    <p>{{ product.about }}</p>
+                                </td>
+                                <td class="table-warning" align="center"><b>{{ product.price }} руб</b></td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                </table>
+            </section>
+        </div>
+
+
 
     {% for job in jobs%}
         <table class="table">

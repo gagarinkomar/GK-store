@@ -32,7 +32,7 @@ class ProductForm(FlaskForm):
     about = TextAreaField('Описание', validators=[DataRequired()])
     image_source = FileField('Картинка')
     price = FloatField('Стоимость в рублях', validators=[DataRequired()])
-    categories = StringField('Категории(через ", ")')
+    categories = StringField('Категории(через пробел)')
     purchased_content = TextAreaField('Купленная информация',
                                       validators=[DataRequired()])
     is_published = BooleanField('Видна неавторизированным пользователям')
