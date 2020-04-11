@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if user.surname %}{{ user.surname }} {% endif %}{{ user.name }}
+{% endblock %}
+
+{% block content %}
+    <h1 align="center">{% if user.surname %}{{ user.surname }} {% endif %}{{ user.name }}</h1>
+    <table><tr>
+        <td class="table-warning" width="20%">
+            <img height="300px" src="{{ user_avatar_source }}"><br>
+        </td>
+        <td class="table-info" width="2%"></td>
+        <td class="table-info" width="78%">
+            <h4>{% if user.permission == 'seller' %}Продавец{% elif user.permission == 'buyer' %}Покупатель{% else %}Админ{% endif %}</h4>
+            <p><i>{{ user.about }}</i></p>
+            <p>
+                <b>Email:</b> {{ user.email }}<br>
+                <b>Номер:</b> {{ user.phone_number }}<br>
+                <b>Дата регистрации:</b> {{ user.created_date.strftime('%H:%M %d.%m.%Y') }}<br>
+                <b>Количество транзакций:</b> {{ user.count_transactions }}<br>
+                <b>Рейтинг:</b> {% if user.count_rating %}{{ (user.sum_rating / user.count_rating)|round(1) }}{% else %}0{% endif %}
+            </p>
+        </td>
+    </tr></table>
+    {% if user.permission == 'seller' %}
+        <h2 align="center">Товары</h2>
+        <div class="row justify-content-md-center"><section class="col-md-8">
+            <table class="table">
+                {% for product, image_source in products %}
+                {% if current_user.is_authenticated or product.is_published %}
+                <tr>
+                    <td class="table-primary" width="20%">
+                        <img height="100px" src="{{ image_source }}"><br>
+                    </td>
+                    <td class="table-primary">
+                        <h4>{{ product.title }}</h4>
+                        <p>{{ product.about }}</p>
+                    </td>
+                    <td class="table-warning" align="center"><b>{{ product.price }} руб</b></td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+            </table>
+        </section></div>
+    {% endif %}
+{% endblock %}

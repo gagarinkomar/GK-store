@@ -19,6 +19,15 @@
             {% endfor %}
         </p>
         <p>
+            {{ form.short_about.label }}<br>
+            {{ form.short_about(class="form-control") }}<br>
+            {% for error in form.short_about.errors %}
+                <p class="alert alert-danger" role="alert">
+                    {{ error }}
+                </p>
+            {% endfor %}
+        </p>
+        <p>
             {{ form.about.label }}<br>
             {{ form.about(class="form-control") }}<br>
             {% for error in form.about.errors %}

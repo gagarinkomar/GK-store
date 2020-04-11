@@ -113,6 +113,7 @@ def add_product():
         product = Product(
             user_id=current_user.id,
             title=form.title.data,
+            short_about=form.short_about.data,
             about=form.about.data,
             price=form.price.data,
             purchased_content=form.purchased_content.data,
@@ -144,6 +145,7 @@ def edit_product(id):
             Product.id == id, Product.user == current_user).first()
         if product:
             form.title.data = product.title
+            form.short_about.data = product.short_about
             form.about.data = product.about
             form.price.data = product.price
             form.purchased_content.data = product.purchased_content
@@ -158,6 +160,7 @@ def edit_product(id):
             Product.id == id, Product.user == current_user).first()
         if product:
             product.title = form.title.data
+            product.short_about = form.short_about.data
             product.about = form.about.data
             product.price = form.price.data
             form.purchased_content = form.purchased_content.data
@@ -181,6 +184,17 @@ def edit_product(id):
             abort(404)
     return render_template('product.html', title='Редактирование товара',
                            form=form)
+
+
+@app.route('/user_about/<int:id>')
+@login_required
+def user_about(id):
+    session = db_session.create_session()
+    user = session.query(User).filter(User.id == id).first()
+    user_avatar_source = url_for('static', filename=f'img/{user.avatar_source}')
+    products = session.query(Product).filter(Product.is_checked, Product.user_id == id).all()
+    products = [(product, url_for('static', filename=f'img/{product.image_source}'))for product in products]
+    return render_template('user_about.html', user=user, user_avatar_source=user_avatar_source, products=products)
 
 
 

@@ -14,6 +14,7 @@ class Product(SqlAlchemyBase):
     user_id = sqlalchemy.Column(sqlalchemy.Integer,
                                 sqlalchemy.ForeignKey('users.id'))
     title = sqlalchemy.Column(sqlalchemy.String)
+    short_about = sqlalchemy.Column(sqlalchemy.String)
     about = sqlalchemy.Column(sqlalchemy.String)
     price = sqlalchemy.Column(sqlalchemy.Integer)
     purchased_content = sqlalchemy.Column(sqlalchemy.String)

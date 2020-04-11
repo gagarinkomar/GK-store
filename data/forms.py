@@ -29,6 +29,7 @@ class LoginForm(FlaskForm):
 
 class ProductForm(FlaskForm):
     title = StringField('Заголовок', validators=[DataRequired()])
+    short_about = TextAreaField('Краткое описание', validators=[DataRequired()])
     about = TextAreaField('Описание', validators=[DataRequired()])
     image_source = FileField('Картинка')
     price = FloatField('Стоимость в рублях', validators=[DataRequired()])
