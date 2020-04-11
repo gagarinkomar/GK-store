@@ -4,14 +4,22 @@
     {% if user.surname %}{{ user.surname }} {% endif %}{{ user.name }}
 {% endblock %}
 
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" type="text/css" href="{{ css_style_source }}" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="{{ js_script_source }}"></script>
+{% endblock %}
+
 {% block content %}
     <h1 align="center">{% if user.surname %}{{ user.surname }} {% endif %}{{ user.name }}</h1>
     <table><tr>
-        <td class="table-warning" width="20%">
-            <img height="300px" src="{{ user_avatar_source }}"><br>
+        <td class="table-info" width="30%">
+            <img max-height="300px" width="100%" src="{{ user_avatar_source }}"><br>
         </td>
         <td class="table-info" width="2%"></td>
-        <td class="table-info" width="78%">
+        <td class="table-info" width="68%">
             <h4>{% if user.permission == 'seller' %}Продавец{% elif user.permission == 'buyer' %}Покупатель{% else %}Админ{% endif %}</h4>
             <p><i>{{ user.about }}</i></p>
             <p>
@@ -29,13 +37,13 @@
             <table class="table">
                 {% for product, image_source in products %}
                 {% if current_user.is_authenticated or product.is_published %}
-                <tr>
+                <tr class="table-row" data-href="/product_about/{{ product.id }}">
                     <td class="table-primary" width="20%">
                         <img height="100px" src="{{ image_source }}"><br>
                     </td>
                     <td class="table-primary">
                         <h4>{{ product.title }}</h4>
-                        <p>{{ product.about }}</p>
+                        <p>{{ product.short_about }}</p>
                     </td>
                     <td class="table-warning" align="center"><b>{{ product.price }} руб</b></td>
                 </tr>

@@ -4,20 +4,12 @@
     GK-store
 {% endblock %}
 
-{% block btns_on_nav %}
-    {% if current_user.is_authenticated %}
-        <p>
-            {% if current_user.permission == 'seller' %}
-                <a href="product" class="btn btn-secondary">Добавить товар</a>
-            {% endif %}
-            <a class="navbar-brand" href="/logout">{{ current_user.name }}</a>
-        </p>
-    {% else %}
-        <p>
-            <a class="btn btn-info" href="/register">Зарегистрироваться</a>
-            <a class="btn btn-warning" href="/login">Войти</a>
-        </p>
-    {% endif %}
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" type="text/css" href="{{ css_style_source }}" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="{{ js_script_source }}"></script>
 {% endblock %}
 
 {% block content %}
@@ -25,7 +17,7 @@
         <div class="row">
             <aside class="col-md-2">
                 <div class="side-bar check-box">
-                    <form method="POST" action="/">
+                    <form method="POST" action="">
                         <h4>Категории</h4>
                         <p>
                             {% for category in categories %}
@@ -40,14 +32,14 @@
                 <table class="table">
                     {% for product, image_source in products %}
                         {% if current_user.is_authenticated or product.is_published %}
-                            <tr>
+                            <tr class="table-row" data-href="/product_about/{{ product.id }}">
                                 <td class="table-primary" width="20%">
                                     <img height="100px" src="{{ image_source }}"><br>
                                     <a href="/user_about/{{ product.user_id }}">{% if product.user.surname %}{{ product.user.surname }} {% endif %}{{ product.user.name }}</a>
                                 </td>
                                 <td class="table-primary">
                                     <h4>{{ product.title }}</h4>
-                                    <p>{{ product.about }}</p>
+                                    <p>{{ product.short_about }}</p>
                                 </td>
                                 <td class="table-warning" align="center"><b>{{ product.price }} руб</b></td>
                             </tr>

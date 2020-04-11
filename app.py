@@ -3,7 +3,6 @@ from flask import Flask, render_template, redirect, abort, request, url_for
 from flask_login import LoginManager, login_user, login_required, logout_user,\
     current_user
 from flask_uploads import configure_uploads, IMAGES, UploadSet
-import datetime
 
 from data import db_session
 from data.users import User
@@ -44,7 +43,7 @@ def index():
         for product in filter(lambda x: choosed_categories <= set(
             map(lambda y: y.name, x.categories)), products)]
     categories = session.query(Category).all()
-    return render_template('index.html', products=products, categories=categories)
+    return render_template('index.html', products=products, categories=categories, js_script_source=url_for('static', filename='js/script.js'), css_style_source=url_for('static', filename='css/style.css'))
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -93,6 +92,12 @@ def login():
                                message="Неправильный логин или пароль",
                                form=form)
     return render_template('login.html', title='Авторизация', form=form)
+
+
+@app.route('/user')
+@login_required
+def user():
+    return
 
 
 @app.route('/logout')
@@ -194,10 +199,28 @@ def user_about(id):
     user_avatar_source = url_for('static', filename=f'img/{user.avatar_source}')
     products = session.query(Product).filter(Product.is_checked, Product.user_id == id).all()
     products = [(product, url_for('static', filename=f'img/{product.image_source}'))for product in products]
-    return render_template('user_about.html', user=user, user_avatar_source=user_avatar_source, products=products)
+    return render_template('user_about.html', user=user, user_avatar_source=user_avatar_source, products=products, js_script_source=url_for('static', filename='js/script.js'), css_style_source=url_for('static', filename='css/style.css'))
+
+
+@app.route('/product_about/<int:id>')
+@login_required
+def product_about(id):
+    session = db_session.create_session()
+    product = session.query(Product).filter(Product.id == id).first()
+    product_image_source = url_for('static', filename=f'img/{product.image_source}')
+    return render_template('product_about.html', product=product, product_image_source=product_image_source)
+
+
+@app.route('/transaction/<int:id>')
+@login_required
+def transaction(id):
+    session = db_session.create_session()
+    product = session.query(Product).filter(Product.id == id).first()
 
 
 
+
+    return 1
 
 
 def main():

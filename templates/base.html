@@ -19,7 +19,20 @@
             <img src="/static/img/logo.png" width="30" height="30" class="d-inline-block align-top" alt="">
             GK-store
         </a>
-        {% block btns_on_nav %}{% endblock %}
+        {% if current_user.is_authenticated %}
+        <p>
+            {% if current_user.permission == 'seller' %}
+                <a href="product" class="btn btn-secondary">Добавить товар</a>
+            {% endif %}
+            <a class="navbar-brand" href="/">{{ current_user.balance|round(2) }} руб</a>
+            <a class="navbar-brand" href="/logout">{{ current_user.name }}</a>
+        </p>
+        {% else %}
+        <p>
+            <a class="btn btn-info" href="/register">Зарегистрироваться</a>
+            <a class="btn btn-warning" href="/login">Войти</a>
+        </p>
+        {% endif %}
     </nav>
 </header>
 <main role="main" class="container">
