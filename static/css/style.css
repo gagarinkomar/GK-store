@@ -8,5 +8,10 @@ tr.table-row{
     color: #606060;
 }
 
+.padding-left {
+	padding-left: 10px;
+}
 
-
+.dropdown-menu{
+	margin-left:-80px;
+}

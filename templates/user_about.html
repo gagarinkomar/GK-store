@@ -33,6 +33,7 @@
     </tr></table>
     {% if current_user.id == user.id %}
         <a class="btn btn-primary btn-secondary btn-block" href="/user">Редактировать</a>
+        <a class="btn btn-danger btn-secondary btn-block" href="/logout">Выйти</a>
     {% endif %}
     {% if user.permission == 'seller' %}
         <h2 align="center">Товары</h2>

@@ -9,6 +9,7 @@ from data import db_session
 from data.users import User
 from data.products import Product
 from data.categories import Category
+from data.transactions import Transaction
 from data.forms import RegisterForm, LoginForm, ProductForm, EditUserForm
 
 
@@ -38,13 +39,13 @@ def index():
     if request.method == 'POST':
         choosed_categories = set(request.form.getlist('categories_checkbox'))
     session = db_session.create_session()
-    products = session.query(Product).filter(Product.is_checked).all()
+    products = session.query(Product).filter(Product.is_checked, Product.is_sold != True).all()
     products = [
         (product, url_for('static', filename=f'img/{product.image_source}'))
         for product in filter(lambda x: choosed_categories <= set(
             map(lambda y: y.name, x.categories)), products)]
     categories = session.query(Category).all()
-    return render_template('index.html', products=products, categories=categories, js_script_source=url_for('static', filename='js/script.js'), css_style_source=url_for('static', filename='css/style.css'))
+    return render_template('index.html', products=products, categories=categories)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -101,33 +102,36 @@ def user():
     if form.validate_on_submit():
         session = db_session.create_session()
         user = session.query(User).filter(User.id == current_user.id).first()
-        if not user.check_password(form.password.data):
-            email = user.email
-            permission = user.permission
-            return render_template('register.html',
-                                   title='Редактирование пользователя',
-                                   email=email, form=form,
-                                   permission=permission,
-                                   message='Неверный пароль')
-        if form.password_new.data != form.password_again.data:
-            email = user.email
-            permission = user.permission
-            return render_template('register.html',
-                                   title='Редактирование пользователя',
-                                   email=email, form=form,
-                                   permission=permission,
-                                   message='Пароли не совпадают')
-        user.name = form.name.data
-        user.phone_number = form.phone_number.data
-        user.about = form.about.data
-        user.surname = form.surname.data
-        if form.avatar_source.data.filename:
-            user.avatar_source = images.save(form.avatar_source.data)
-        if form.password_new.data:
-            user.set_password(form.password_new.data)
-            user.last_changed_date = datetime.datetime.now()
-        session.commit()
-        return redirect('/')
+        if user:
+            if not user.check_password(form.password.data):
+                email = user.email
+                permission = user.permission
+                return render_template('register.html',
+                                       title='Редактирование пользователя',
+                                       email=email, form=form,
+                                       permission=permission,
+                                       message='Неверный пароль')
+            if form.password_new.data != form.password_again.data:
+                email = user.email
+                permission = user.permission
+                return render_template('register.html',
+                                       title='Редактирование пользователя',
+                                       email=email, form=form,
+                                       permission=permission,
+                                       message='Пароли не совпадают')
+            user.name = form.name.data
+            user.phone_number = form.phone_number.data
+            user.about = form.about.data
+            user.surname = form.surname.data
+            if form.avatar_source.data.filename:
+                user.avatar_source = images.save(form.avatar_source.data)
+            if form.password_new.data:
+                user.set_password(form.password_new.data)
+                user.last_changed_date = datetime.datetime.now()
+            session.commit()
+            return redirect('/')
+        else:
+            abort(404)
     return render_template('register.html', title='Редактирование пользователя', email=email, form=form, permission=permission)
 
 
@@ -247,7 +251,7 @@ def user_about(id):
     user_avatar_source = url_for('static', filename=f'img/{user.avatar_source}')
     products = session.query(Product).filter(Product.is_checked, Product.user_id == id).all()
     products = [(product, url_for('static', filename=f'img/{product.image_source}'))for product in products]
-    return render_template('user_about.html', user=user, user_avatar_source=user_avatar_source, products=products, js_script_source=url_for('static', filename='js/script.js'), css_style_source=url_for('static', filename='css/style.css'))
+    return render_template('user_about.html', user=user, user_avatar_source=user_avatar_source, products=products)
 
 
 @app.route('/product_about/<int:id>')
@@ -261,16 +265,50 @@ def product_about(id):
     return render_template('product_about.html', product=product, product_image_source=product_image_source)
 
 
-@app.route('/transaction/<int:id>')
+@app.route('/transaction/<int:id>', methods=['GET', 'POST'])
 @login_required
 def transaction(id):
     session = db_session.create_session()
     product = session.query(Product).filter(Product.id == id).first()
+    if not product.is_checked or product.is_sold:
+        abort(404)
+    if request.method == 'POST':
+        user = session.query(User).filter(User.id == current_user.id).first()
+        transaction = Transaction()
+        transaction.seller_id = product.user_id
+        transaction.buyer_id = current_user.id
+        transaction.product_id = product.id
+        transaction.status = 'Куплено'
+        product.is_sold = True
+        user.balance -= product.price
+        product.user.balance += product.price * 0.95
+        transaction.price = product.price
+        session.add(transaction)
+        session.commit()
+        return redirect(f'/transaction_about/{transaction.id}')
+    return render_template('transaction.html', product=product)
 
 
+@app.route('/transactions/')
+@login_required
+def transactions():
+    session = db_session.create_session()
+    transactions = session.query(Transaction).filter((Transaction.buyer_id == current_user.id) | (Transaction.seller_id == current_user.id))
+
+    return render_template('transactions.html', transactions=transactions)
 
 
-    return 1
+@app.route('/transaction_about/<int:id>')
+@login_required
+def transaction_about(id):
+    session = db_session.create_session()
+    transaction = session.query(Transaction).filter(Transaction.id == id).first()
+    if transaction.buyer_id != current_user.id and transaction.seller_id != current_user.id:
+        abort(404)
+    product = transaction.product
+    return render_template('transaction.html', product=product)
+
+
 
 
 def main():

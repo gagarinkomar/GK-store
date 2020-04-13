@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{ product.title }}
+{% endblock %}
+
+{% block content %}
+<table class="table">
+    <thead>
+        <tr>
+            <th colspan="2"><h1 align="center">Информация</h1></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <th>Название товара</th>
+            <td>{{ product.title }}</td>
+        </tr>
+        <tr>
+            <th>Продавец</th>
+            <td>{% if product.user.surname %}{{ product.user.surname }} {% endif %}{{ product.user.name }}</td>
+        </tr>
+        <tr>
+            <th>Покупатель(вы)</th>
+            <td>{% if current_user.surname %}{{ current_user.surname }} {% endif %}{{ current_user.name }}</td>
+        </tr>
+        <tr>
+            <th>Стоимость</th>
+            <td>{{ product.price }} руб</td>
+        </tr>
+            {% if product.is_sold %}
+        <tr>
+            <th>Статус</th>
+            <td>{{ product.transaction[0].status }}</td>
+        </tr>
+        <tr>
+            <th>Дата</th>
+            <td>{{ product.transaction[0].date.strftime('%H:%M %d.%m.%Y') }}</td>
+        </tr>
+        <tr>
+            <th>Купленная информация</th>
+            <td>{{ product.purchased_content }}</td>
+        </tr>
+    </tbody>
+</table>
+            {% else %}
+        </tr>
+    </tbody>
+</table>
+<form method="POST" action="">
+    <button class="btn btn-danger btn-lg btn-block" type="sumbit">Подтвердить покупку</button>
+</form>
+            {% endif %}
+{% endblock %}

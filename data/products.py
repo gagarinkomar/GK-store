@@ -16,7 +16,7 @@ class Product(SqlAlchemyBase):
     title = sqlalchemy.Column(sqlalchemy.String)
     short_about = sqlalchemy.Column(sqlalchemy.String)
     about = sqlalchemy.Column(sqlalchemy.String)
-    price = sqlalchemy.Column(sqlalchemy.Integer)
+    price = sqlalchemy.Column(sqlalchemy.Float)
     purchased_content = sqlalchemy.Column(sqlalchemy.String)
     is_published = sqlalchemy.Column(sqlalchemy.Boolean, default=True)
     is_sold = sqlalchemy.Column(sqlalchemy.Boolean, default=False)
@@ -31,3 +31,4 @@ class Product(SqlAlchemyBase):
     categories = orm.relation('Category',
                               secondary='product_to_category',
                               backref='products')
+    transaction = orm.relation('Transaction')
