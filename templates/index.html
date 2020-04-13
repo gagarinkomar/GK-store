@@ -14,6 +14,7 @@
 {% block content %}
         <h1 align="center" >Список товаров</h1>
         <div class="row">
+            {% if categories %}
             <aside class="col-md-2">
                 <div class="side-bar check-box">
                     <form method="POST" action="">
@@ -27,6 +28,7 @@
                     </form>
                 </div>
             </aside>
+            {% endif %}
             <section class="col-md-10">
                 <table class="table">
                     {% for product, image_source in products %}
@@ -36,11 +38,13 @@
                                     <img height="100px" src="{{ image_source }}"><br>
                                     <a href="/user_about/{{ product.user_id }}">{% if product.user.surname %}{{ product.user.surname }} {% endif %}{{ product.user.name }}</a>
                                 </td>
-                                <td class="table-primary">
+                                <td class="table-primary" width="60%">
                                     <h4>{{ product.title }}</h4>
                                     <p>{{ product.short_about }}</p>
                                 </td>
-                                <td class="table-warning" align="center"><b>{{ product.price }} руб</b></td>
+                                <td class="table-warning" align="center">
+                                    <b>{{ product.price }} руб</b>
+                                </td>
                             </tr>
                         {% endif %}
                     {% endfor %}

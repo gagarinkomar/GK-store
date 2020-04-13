@@ -248,19 +248,27 @@ def user_about(id):
     user = session.query(User).filter(User.id == id).first()
     if not user:
         abort(404)
+    if user.permission == 'admin' and current_user.permission != 'admin':
+        abort(403)
     user_avatar_source = url_for('static', filename=f'img/{user.avatar_source}')
     products = session.query(Product).filter(Product.is_checked, Product.user_id == id).all()
     products = [(product, url_for('static', filename=f'img/{product.image_source}'))for product in products]
     return render_template('user_about.html', user=user, user_avatar_source=user_avatar_source, products=products)
 
 
-@app.route('/product_about/<int:id>')
+@app.route('/product_about/<int:id>', methods=['GET', 'POST'])
 @login_required
 def product_about(id):
     session = db_session.create_session()
     product = session.query(Product).filter(Product.id == id).first()
     if not product:
         abort(404)
+    if not product.is_checked and not current_user.permission == 'admin':
+        abort(403)
+    if request.method == 'POST':
+        product.is_checked = True
+        session.commit()
+        return redirect('../products_check')
     product_image_source = url_for('static', filename=f'img/{product.image_source}')
     return render_template('product_about.html', product=product, product_image_source=product_image_source)
 
@@ -274,6 +282,7 @@ def transaction(id):
         abort(404)
     if request.method == 'POST':
         user = session.query(User).filter(User.id == current_user.id).first()
+        admin = session.query(User).filter(User.permission == 'admin').first()
         transaction = Transaction()
         transaction.seller_id = product.user_id
         transaction.buyer_id = current_user.id
@@ -282,6 +291,7 @@ def transaction(id):
         product.is_sold = True
         user.balance -= product.price
         product.user.balance += product.price * 0.95
+        admin.balance += product.price * 0.05
         transaction.price = product.price
         session.add(transaction)
         session.commit()
@@ -293,8 +303,10 @@ def transaction(id):
 @login_required
 def transactions():
     session = db_session.create_session()
-    transactions = session.query(Transaction).filter((Transaction.buyer_id == current_user.id) | (Transaction.seller_id == current_user.id))
-
+    if current_user.permission == 'admin':
+        transactions = session.query(Transaction).all()
+    else:
+        transactions = session.query(Transaction).filter((Transaction.buyer_id == current_user.id) | (Transaction.seller_id == current_user.id))
     return render_template('transactions.html', transactions=transactions)
 
 
@@ -303,11 +315,29 @@ def transactions():
 def transaction_about(id):
     session = db_session.create_session()
     transaction = session.query(Transaction).filter(Transaction.id == id).first()
-    if transaction.buyer_id != current_user.id and transaction.seller_id != current_user.id:
+    if not transaction:
         abort(404)
+    if transaction.buyer_id != current_user.id and transaction.seller_id != current_user.id and current_user.permission != 'admin':
+        abort(403)
     product = transaction.product
     return render_template('transaction.html', product=product)
 
+
+@app.route('/balance')
+@login_required
+def balance(id):
+    return 123
+
+
+@app.route('/products_check')
+@login_required
+def products_check():
+    session = db_session.create_session()
+    products = session.query(Product).filter(Product.is_checked != True).all()
+    products = [
+        (product, url_for('static', filename=f'img/{product.image_source}'))
+        for product in products]
+    return render_template('index.html', products=products)
 
 
 
