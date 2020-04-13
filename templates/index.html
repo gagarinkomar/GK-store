@@ -32,7 +32,7 @@
                 <table class="table">
                     {% for product, image_source in products %}
                         {% if current_user.is_authenticated or product.is_published %}
-                            <tr class="table-row" data-href="/product_about/{{ product.id }}">
+                            <tr class="{% if current_user.is_authenticated %}table-row{% else %}disabled{% endif %}" data-href="/product_about/{{ product.id }}">
                                 <td class="table-primary" width="20%">
                                     <img height="100px" src="{{ image_source }}"><br>
                                     <a href="/user_about/{{ product.user_id }}">{% if product.user.surname %}{{ product.user.surname }} {% endif %}{{ product.user.name }}</a>

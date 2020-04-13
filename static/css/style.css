@@ -1,0 +1,12 @@
+tr.table-row{
+	cursor:pointer;
+}
+
+.disabled a {
+    pointer-events: none;
+    cursor: default;
+    color: #606060;
+}
+
+
+

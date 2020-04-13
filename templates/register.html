@@ -54,28 +54,38 @@
                 </p>
             {% endfor %}
         </p>
+        {% if email %}
+            <p>Почта</p>
+            <p><b>{{ email }}</b></p>
+        {% else %}
+            <p>
+                {{ form.email.label }}<br>
+                {{ form.email(class="form-control", type="email") }}<br>
+                {% for error in form.password_again.errors %}
+                    <p class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </p>
+                {% endfor %}
+            </p>
+        {% endif %}
+        {% if permission %}
+            <p>Роль</p>
+            <p><b>{{ permission }}</b></p>
+        {% else %}
+            <p>
+                {{ form.permission.label }}<br>
+                {{ form.permission(class="form-control") }}<br>
+                {% for error in form.permission.errors %}
+                    <p class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </p>
+                {% endfor %}
+            </p>
+        {% endif %}
         <p>
-            {{ form.email.label }}<br>
-            {{ form.email(class="form-control", type="email") }}<br>
-            {% for error in form.password_again.errors %}
-                <p class="alert alert-danger" role="alert">
-                    {{ error }}
-                </p>
-            {% endfor %}
-        </p>
-        <p>
-            {{ form.permission.label }}<br>
-            {{ form.permission(class="form-control") }}<br>
-            {% for error in form.permission.errors %}
-                <p class="alert alert-danger" role="alert">
-                    {{ error }}
-                </p>
-            {% endfor %}
-        </p>
-        <p>
-        {{ form.password.label }}<br>
-        {{ form.password(class="form-control", type="password") }}<br>
-        {% for error in form.password.errors %}
+        {{ form.password_new.label }}<br>
+        {{ form.password_new(class="form-control", type="password") }}<br>
+        {% for error in form.password_new.errors %}
             <p class="alert alert-danger" role="alert">
                 {{ error }}
             </p>
@@ -90,6 +100,17 @@
                 </p>
             {% endfor %}
         </p>
+        {% if form.password %}
+            <p>
+            {{ form.password.label }}<br>
+            {{ form.password(class="form-control", type="password") }}<br>
+            {% for error in form.password.errors %}
+                <p class="alert alert-danger" role="alert">
+                    {{ error }}
+                </p>
+            {% endfor %}
+        </p>
+        {% endif %}
         <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
         {% if message %}
         <p class="alert alert-danger" role="alert">

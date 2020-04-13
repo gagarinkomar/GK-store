@@ -14,10 +14,22 @@ class RegisterForm(FlaskForm):
     email = EmailField('Почта', validators=[DataRequired()])
     permission = SelectField('Роль', choices=[('seller', 'Продавец'),
                                               ('buyer', 'Покупатель')])
-    password = PasswordField('Пароль', validators=[DataRequired()])
+    password_new = PasswordField('Пароль', validators=[DataRequired()])
     password_again = PasswordField('Повторите пароль',
                                    validators=[DataRequired()])
     submit = SubmitField('Зарегестрироваться')
+
+
+class EditUserForm(FlaskForm):
+    name = StringField('Имя', validators=[DataRequired()])
+    surname = StringField('Фамилия')
+    about = TextAreaField('О себе')
+    avatar_source = FileField('Аватарка')
+    phone_number = StringField('Номер телефона')
+    password_new = PasswordField('Новый пароль(не обязательно)')
+    password_again = PasswordField('Повторите новый пароль')
+    password = PasswordField('Пароль для принятия изменений', validators=[DataRequired()])
+    submit = SubmitField('Изменить')
 
 
 class LoginForm(FlaskForm):

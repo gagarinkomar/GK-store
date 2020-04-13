@@ -25,7 +25,7 @@
                 <a href="product" class="btn btn-secondary">Добавить товар</a>
             {% endif %}
             <a class="navbar-brand" href="/">{{ current_user.balance|round(2) }} руб</a>
-            <a class="navbar-brand" href="/logout">{{ current_user.name }}</a>
+            <a class="navbar-brand" href="/user_about/{{ current_user.id }}">{{ current_user.name }}</a>
         </p>
         {% else %}
         <p>

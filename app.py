@@ -3,12 +3,13 @@ from flask import Flask, render_template, redirect, abort, request, url_for
 from flask_login import LoginManager, login_user, login_required, logout_user,\
     current_user
 from flask_uploads import configure_uploads, IMAGES, UploadSet
+import datetime
 
 from data import db_session
 from data.users import User
 from data.products import Product
 from data.categories import Category
-from data.forms import RegisterForm, LoginForm, ProductForm
+from data.forms import RegisterForm, LoginForm, ProductForm, EditUserForm
 
 
 
@@ -50,7 +51,7 @@ def index():
 def reqister():
     form = RegisterForm()
     if form.validate_on_submit():
-        if form.password.data != form.password_again.data:
+        if form.password_new.data != form.password_again.data:
             return render_template('register.html', title='Регистрация',
                                    form=form,
                                    message="Пароли не совпадают")
@@ -72,11 +73,62 @@ def reqister():
             user.surname = form.surname.data
         if form.avatar_source.data.filename:
             user.avatar_source = images.save(form.avatar_source.data)
-        user.set_password(form.password.data)
+        user.set_password(form.password_new.data)
         session.add(user)
         session.commit()
-        return redirect('/')
+        return redirect('/login')
     return render_template('register.html', title='Регистрация', form=form)
+
+
+@app.route('/user', methods=['GET', 'POST'])
+@login_required
+def user():
+    email, permission = None, None
+    form = EditUserForm()
+    if request.method == "GET":
+        session = db_session.create_session()
+        user = session.query(User).filter(User.id == current_user.id).first()
+        if user:
+            form.name.data = user.name
+            form.surname.data = user.surname
+            form.about.data = user.about
+            form.avatar_source.data = user.avatar_source
+            form.phone_number.data = user.phone_number
+            email = user.email
+            permission = user.permission
+        else:
+            abort(404)
+    if form.validate_on_submit():
+        session = db_session.create_session()
+        user = session.query(User).filter(User.id == current_user.id).first()
+        if not user.check_password(form.password.data):
+            email = user.email
+            permission = user.permission
+            return render_template('register.html',
+                                   title='Редактирование пользователя',
+                                   email=email, form=form,
+                                   permission=permission,
+                                   message='Неверный пароль')
+        if form.password_new.data != form.password_again.data:
+            email = user.email
+            permission = user.permission
+            return render_template('register.html',
+                                   title='Редактирование пользователя',
+                                   email=email, form=form,
+                                   permission=permission,
+                                   message='Пароли не совпадают')
+        user.name = form.name.data
+        user.phone_number = form.phone_number.data
+        user.about = form.about.data
+        user.surname = form.surname.data
+        if form.avatar_source.data.filename:
+            user.avatar_source = images.save(form.avatar_source.data)
+        if form.password_new.data:
+            user.set_password(form.password_new.data)
+            user.last_changed_date = datetime.datetime.now()
+        session.commit()
+        return redirect('/')
+    return render_template('register.html', title='Редактирование пользователя', email=email, form=form, permission=permission)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -92,12 +144,6 @@ def login():
                                message="Неправильный логин или пароль",
                                form=form)
     return render_template('login.html', title='Авторизация', form=form)
-
-
-@app.route('/user')
-@login_required
-def user():
-    return
 
 
 @app.route('/logout')
@@ -196,6 +242,8 @@ def edit_product(id):
 def user_about(id):
     session = db_session.create_session()
     user = session.query(User).filter(User.id == id).first()
+    if not user:
+        abort(404)
     user_avatar_source = url_for('static', filename=f'img/{user.avatar_source}')
     products = session.query(Product).filter(Product.is_checked, Product.user_id == id).all()
     products = [(product, url_for('static', filename=f'img/{product.image_source}'))for product in products]
@@ -207,6 +255,8 @@ def user_about(id):
 def product_about(id):
     session = db_session.create_session()
     product = session.query(Product).filter(Product.id == id).first()
+    if not product:
+        abort(404)
     product_image_source = url_for('static', filename=f'img/{product.image_source}')
     return render_template('product_about.html', product=product, product_image_source=product_image_source)
 

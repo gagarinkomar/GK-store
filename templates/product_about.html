@@ -23,7 +23,7 @@
     </tr></table>
     <div align="center">
     {% if current_user.permission == 'buyer' %}
-        <a class="btn btn-primary btn-lg btn-block" href="/transaction/">Купить за {{ product.price }} руб</a>
+        <a class="btn btn-danger btn-lg btn-block" href="/transaction/">Купить за {{ product.price }} руб</a>
     {% elif product.user.id == current_user.id %}
         <a class="btn btn-primary btn-secondary btn-block" href="/product/{{ product.id }}">Редактировать</a>
     {% endif %}
