@@ -10,7 +10,9 @@ from data.users import User
 from data.products import Product
 from data.categories import Category
 from data.transactions import Transaction
-from data.forms import RegisterForm, LoginForm, ProductForm, EditUserForm
+from data.promocodes import Promocode
+from data.forms import RegisterForm, LoginForm, ProductForm, EditUserForm,\
+    PromocodeForm, PromocodeCreateForm
 
 
 
@@ -78,7 +80,7 @@ def reqister():
         session.add(user)
         session.commit()
         return redirect('/login')
-    return render_template('register.html', title='Регистрация', form=form)
+    return render_template('register.html', form=form)
 
 
 @app.route('/user', methods=['GET', 'POST'])
@@ -127,7 +129,7 @@ def user():
                 user.avatar_source = images.save(form.avatar_source.data)
             if form.password_new.data:
                 user.set_password(form.password_new.data)
-                user.last_changed_date = datetime.datetime.now()
+            user.last_changed_date = datetime.datetime.now()
             session.commit()
             return redirect('/')
         else:
@@ -185,7 +187,7 @@ def add_product():
         session.add(product)
         session.commit()
         return redirect('/')
-    return render_template('product.html', title='Добавить товар', form=form)
+    return render_template('product.html', form=form)
 
 
 @app.route('/product/<int:id>', methods=['GET', 'POST'])
@@ -224,8 +226,7 @@ def edit_product(id):
                 product.image_source = images.save(form.image_source.data)
             for category in product.categories:
                 product.categories.remove(category)
-            print(len(product.categories))
-            for category_name in form.categories.data.lower().split(', '):
+            for category_name in form.categories.data.lower().split(' '):
                 if category_name not in map(lambda x: x.name,
                                             session.query(Category).all()):
                     category = Category(name=category_name)
@@ -233,6 +234,7 @@ def edit_product(id):
                     session.commit()
                 product.categories.append(session.query(Category).filter(
                     Category.name == category_name).first())
+            product.last_changed_date = datetime.datetime.now()
             session.commit()
             return redirect('/')
         else:
@@ -267,8 +269,9 @@ def product_about(id):
         abort(403)
     if request.method == 'POST':
         product.is_checked = True
+        product.checked_date = datetime.datetime.now()
         session.commit()
-        return redirect('../products_check')
+        return redirect(url_for('products_check'))
     product_image_source = url_for('static', filename=f'img/{product.image_source}')
     return render_template('product_about.html', product=product, product_image_source=product_image_source)
 
@@ -295,7 +298,7 @@ def transaction(id):
         transaction.price = product.price
         session.add(transaction)
         session.commit()
-        return redirect(f'/transaction_about/{transaction.id}')
+        return redirect(url_for('transaction_about', id=transaction.id))
     return render_template('transaction.html', product=product)
 
 
@@ -310,7 +313,7 @@ def transactions():
     return render_template('transactions.html', transactions=transactions)
 
 
-@app.route('/transaction_about/<int:id>')
+@app.route('/transaction_about/<int:id>', methods=['GET', 'POST'])
 @login_required
 def transaction_about(id):
     session = db_session.create_session()
@@ -319,14 +322,73 @@ def transaction_about(id):
         abort(404)
     if transaction.buyer_id != current_user.id and transaction.seller_id != current_user.id and current_user.permission != 'admin':
         abort(403)
+    if request.method == 'POST':
+        rating = request.form.getlist('rating')
+        if rating:
+            rating = int(rating[0])
+            if current_user.permission == 'seller':
+                if not transaction.estimate_buyer:
+                    transaction.estimate_buyer = rating
+                    user = transaction.buyer
+                    user.sum_rating += rating
+                    user.count_rating += 1
+            else:
+                if not transaction.estimate_seller:
+                    transaction.estimate_seller = rating
+                    user = transaction.seller
+                    user.sum_rating += rating
+                    user.count_rating += 1
+            session.commit()
     product = transaction.product
     return render_template('transaction.html', product=product)
 
 
-@app.route('/balance')
+@app.route('/balance', methods=['GET', 'POST'])
 @login_required
-def balance(id):
-    return 123
+def balance():
+    if current_user.permission == 'admin':
+        form = PromocodeCreateForm()
+    else:
+        form = PromocodeForm()
+    if form.validate_on_submit():
+        session = db_session.create_session()
+        promocodes = session.query(Promocode).filter().all()
+        promocodes = list(
+            filter(lambda x: x.check_content(form.promocode.data),
+                   promocodes))
+        if current_user.permission == 'admin':
+            if promocodes:
+                return render_template('balance.html', form=form,
+                                       message='Промокод уже существует(существовал)')
+            if current_user.balance < form.award.data:
+                return render_template('balance.html', form=form,
+                                       message='Недостаточно средств')
+            promocode = Promocode()
+            promocode.set_content(form.promocode.data)
+            promocode.award = form.award.data
+            user = session.query(User).filter(
+                User.id == current_user.id).first()
+            user.balance -= promocode.award
+            session.add(promocode)
+            session.commit()
+            return render_template('balance.html', form=form,
+                                   message='Промокод успешно создан')
+        if not promocodes:
+            return render_template('balance.html', form=form, message='Такого промокода не существует')
+        promocodes = list(
+            filter(lambda x: not x.is_activated,
+                   promocodes))
+        if not promocodes:
+            return render_template('balance.html', form=form, message='Промокод уже активирован')
+        promocode = promocodes[0]
+        user = session.query(User).filter(User.id == current_user.id).first()
+        user.balance += promocode.award
+        promocode.is_activated = True
+        session.commit()
+        current_user.balance += promocode.award
+        return render_template('balance.html', form=form,
+                               message='Промокод успешно активирован')
+    return render_template('balance.html', form=form)
 
 
 @app.route('/products_check')

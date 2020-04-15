@@ -27,8 +27,10 @@ class Product(SqlAlchemyBase):
                                      nullable=True)
     image_source = sqlalchemy.Column(sqlalchemy.String,
                                      default='default_image.png')
+    last_changed_date = sqlalchemy.Column(sqlalchemy.DateTime,
+                                     default=datetime.datetime.now)
     user = orm.relation('User')
     categories = orm.relation('Category',
                               secondary='product_to_category',
                               backref='products')
-    transaction = orm.relation('Transaction')
+    transactions = orm.relation('Transaction', back_populates='product')

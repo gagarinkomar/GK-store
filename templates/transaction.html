@@ -31,11 +31,11 @@
             {% if product.is_sold %}
         <tr>
             <th>Статус</th>
-            <td>{{ product.transaction[0].status }}</td>
+            <td>{{ product.transactions[0].status }}</td>
         </tr>
         <tr>
             <th>Дата</th>
-            <td>{{ product.transaction[0].date.strftime('%H:%M %d.%m.%Y') }}</td>
+            <td>{{ product.transactions[0].date.strftime('%H:%M %d.%m.%Y') }}</td>
         </tr>
         <tr>
             <th>Купленная информация</th>
@@ -43,6 +43,45 @@
         </tr>
     </tbody>
 </table>
+{% if current_user.permission == 'admin' %}
+<p></p>
+{% elif current_user.permission == 'seller' and product.transactions[0].estimate_buyer %}
+<div class="rating-result">
+    {% for i in range(product.transactions[0].estimate_buyer) %}
+        <span class="active"></span>
+    {% endfor %}
+    {% for i in range(5 - product.transactions[0].estimate_buyer) %}
+	    <span></span>
+	{% endfor %}
+</div>
+{% elif current_user.permission == 'buyer' and product.transactions[0].estimate_seller %}
+<div class="rating-result">
+    {% for i in range(product.transactions[0].estimate_seller) %}
+        <span class="active"></span>
+    {% endfor %}
+    {% for i in range(5 - product.transactions[0].estimate_seller) %}
+	    <span></span>
+	{% endfor %}
+</div>
+{% elif product.is_sold %}
+<form method="POST" action="">
+<div class="rating-area">
+	<input type="radio" id="star-5" name="rating" value="5">
+	<label for="star-5" title="Оценка «5»"></label>
+	<input type="radio" id="star-4" name="rating" value="4">
+	<label for="star-4" title="Оценка «4»"></label>
+	<input type="radio" id="star-3" name="rating" value="3">
+	<label for="star-3" title="Оценка «3»"></label>
+	<input type="radio" id="star-2" name="rating" value="2">
+	<label for="star-2" title="Оценка «2»"></label>
+	<input type="radio" id="star-1" name="rating" value="1">
+	<label for="star-1" title="Оценка «1»"></label>
+</div>
+    <div class="center">
+        <button class="btn btn-warning" type="sumbit">Оценить</button>
+    </div>
+</form>
+{% endif %}
             {% else %}
         </tr>
     </tbody>

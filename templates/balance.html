@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Баланс
+{% endblock %}
+
+{% block content %}
+    <h1 align="center">Ваш баланс: {{ current_user.balance }} руб</h1>
+    <div class="btn-group btn-block">
+        <button class="btn btn-danger" disabled>Снять(недоступно)</button>
+        <button class="btn btn-success" disabled>Пополнить(недоступно)</button>
+    </div>
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+        {{ form.csrf_token }}
+        <div class="center">
+            <h4 align="center">{{ form.promocode.label }}</h4>
+            {{ form.promocode(class="form-control") }}<br>
+            {% for error in form.promocode.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+            {% if form.award %}
+            <p>
+                {{ form.award(class="form-control", type="number") }}<br>
+                {% for error in form.award.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                {% endfor %}
+            </p>
+            {% endif %}
+        <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+            {% if message == 'Промокод успешно активирован' or message == 'Промокод успешно создан' %}
+            <p class="alert alert-success" role="alert">
+                {{ message }}
+            </p>
+            {% elif message %}
+            <p class="alert alert-danger" role="alert">
+                {{ message }}
+            </p>
+            {% endif %}
+        </div>
+    </form>
+{% endblock %}

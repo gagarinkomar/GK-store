@@ -1,1 +1,1 @@
-from . import users, categories, products, transactions
+from . import users, categories, products, transactions, promocodes

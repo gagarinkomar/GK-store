@@ -9,9 +9,99 @@ tr.table-row{
 }
 
 .padding-left {
-	padding-left: 10px;
+    padding-left: 10px;
 }
 
 .dropdown-menu{
-	margin-left:-110px;
+    margin-left:-110px;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+}
+
+.content {
+    flex: 1 0 auto;
+}
+
+.footer {
+    flex: 0 0 auto;
+}
+
+.center { 
+    text-align: center; 
+}
+
+.rating-area {
+	overflow: hidden;
+	width: 210px;
+	margin: 0 auto;
+}
+
+.rating-area:not(:checked) > input {
+	display: none;
+}
+
+.rating-area:not(:checked) > label {
+	float: right;
+	width: 42px;
+	padding: 0;
+	cursor: pointer;
+	font-size: 50px;
+	line-height: 50px;
+	color: lightgrey;
+}
+
+.rating-area:not(:checked) > label:before {
+	content: '★';
+}
+
+.rating-area > input:checked ~ label {
+	color: gold;
+}
+
+.rating-area:not(:checked) > label:hover,
+.rating-area:not(:checked) > label:hover ~ label {
+	color: gold;
+}
+
+.rating-area > input:checked + label:hover,
+.rating-area > input:checked + label:hover ~ label,
+.rating-area > input:checked ~ label:hover,
+.rating-area > input:checked ~ label:hover ~ label,
+.rating-area > label:hover ~ input:checked ~ label {
+	color: gold;
+}
+
+.rate-area > label:active {
+	position: relative;
+}
+
+.rating-result {
+	width: 210px;
+	margin: 0 auto;
+}
+
+.rating-result span {
+	float: left;
+	width: 42px;
+	padding: 0;
+	font-size: 50px;
+	line-height: 50px;
+	color: lightgrey;
+}
+
+.rating-result > span:before {
+	content: '★';
+}
+
+.rating-result > span.active {
+	color: gold;
 }

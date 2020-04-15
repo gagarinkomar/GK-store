@@ -50,3 +50,14 @@ class ProductForm(FlaskForm):
                                       validators=[DataRequired()])
     is_published = BooleanField('Видна неавторизированным пользователям')
     submit = SubmitField('Отправить на проверку')
+
+
+class PromocodeForm(FlaskForm):
+    promocode = StringField('Ввести промокод', validators=[DataRequired()])
+    submit = SubmitField('Активировать')
+
+
+class PromocodeCreateForm(FlaskForm):
+    promocode = StringField('Добавить промокод', validators=[DataRequired()])
+    award = FloatField(validators=[DataRequired()])
+    submit = SubmitField('Добавить')
