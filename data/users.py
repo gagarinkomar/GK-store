@@ -37,7 +37,6 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
                                      default=datetime.datetime.now)
     avatar_source = sqlalchemy.Column(sqlalchemy.String,
                                       default='default_avatar.png')
-    count_transactions = sqlalchemy.Column(sqlalchemy.Integer, default=0)
     products = orm.relation('Product', back_populates='user')
     if permission == 'seller':
         transactions = orm.relation('Transaction', back_populates='seller')

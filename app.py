@@ -51,7 +51,7 @@ def load_user(user_id):
     return session.query(User).get(user_id)
 
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'])  # Главная страница со списком всех товаров
 def index():
     form = SortingForm()
     choosed_categories = set()
@@ -82,23 +82,25 @@ def index():
     return render_template('index.html', products=products, categories=categories, choosed_categories=choosed_categories, form=form)
 
 
-@app.route('/register', methods=['GET', 'POST'])
+@app.route('/register', methods=['GET', 'POST'])  # Страница регистрации
 def reqister():
     form = RegisterForm()
     if form.validate_on_submit():
-        if not set(form.avatar_source.data.filename.lower()) <= set('abcdefghijklmnopqrstuvwxyz0123456789!\"#$%&\'()*+,-./:;<=>?@[\]^_`{|}~'):
+        if not set(form.avatar_source.data.filename.lower()) <=\
+               set('abcdefghijklmnopqrstuvwxyz0123456789!\'#$'
+                   '%&\'()*+,-./:;<=>?@[\]^_`{|}~'):
             return render_template('register.html', title='Регистрация',
                                    form=form,
-                                   message="Недопустимое название файла")
+                                   message='Недопустимое название файла')
         if form.password_new.data != form.password_again.data:
             return render_template('register.html', title='Регистрация',
                                    form=form,
-                                   message="Пароли не совпадают")
+                                   message='Пароли не совпадают')
         session = db_session.create_session()
         if session.query(User).filter(User.email == form.email.data).first():
             return render_template('register.html', title='Регистрация',
                                    form=form,
-                                   message="Такой пользователь уже есть")
+                                   message='Такой пользователь уже есть')
         user = User(
             name=form.name.data,
             email=form.email.data,
@@ -119,12 +121,12 @@ def reqister():
     return render_template('register.html', form=form)
 
 
-@app.route('/user', methods=['GET', 'POST'])
+@app.route('/user', methods=['GET', 'POST'])  # Страница с редактированием профиля пользователя
 @login_required
 def user():
     email, permission = None, None
     form = EditUserForm()
-    if request.method == "GET":
+    if request.method == 'GET':
         session = db_session.create_session()
         user = session.query(User).filter(User.id == current_user.id).first()
         if user:
@@ -144,7 +146,7 @@ def user():
             email = user.email
             permission = user.permission
             if not set(form.avatar_source.data.filename.lower()) <= set(
-                    'abcdefghijklmnopqrstuvwxyz0123456789!\"#$%&\'()*+,-./:;<=>?@[\]^_`{|}~'):
+                    'abcdefghijklmnopqrstuvwxyz0123456789!\'#$%&\'()*+,-./:;<=>?@[\]^_`{|}~'):
                 return render_template('register.html',
                                        title='Редактирование пользователя',
                                        email=email, form=form,
@@ -178,7 +180,7 @@ def user():
     return render_template('register.html', title='Редактирование пользователя', email=email, form=form, permission=permission)
 
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/login', methods=['GET', 'POST'])  # Страница авторизации в аккаунт
 def login():
     form = LoginForm()
     if form.validate_on_submit():
@@ -186,21 +188,21 @@ def login():
         user = session.query(User).filter(User.email == form.email.data).first()
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
-            return redirect("/")
+            return redirect('/')
         return render_template('login.html',
-                               message="Неправильный логин или пароль",
+                               message='Неправильный логин или пароль',
                                form=form)
     return render_template('login.html', title='Авторизация', form=form)
 
 
-@app.route('/logout')
+@app.route('/logout')  # Страница выхода из аккаунта
 @login_required
 def logout():
     logout_user()
-    return redirect("/")
+    return redirect('/')
 
 
-@app.route('/product', methods=['GET', 'POST'])
+@app.route('/product', methods=['GET', 'POST'])  # Страница с созданием товара
 @login_required
 def add_product():
     if current_user.permission != 'seller':
@@ -208,7 +210,7 @@ def add_product():
     form = ProductForm()
     if form.validate_on_submit():
         if not set(form.image_source.data.filename.lower()) <= set(
-                'abcdefghijklmnopqrstuvwxyz0123456789!\"#$%&\'()*+,-./:;<=>?@[\]^_`{|}~'):
+                'abcdefghijklmnopqrstuvwxyz0123456789!\'#$%&\'()*+,-./:;<=>?@[\]^_`{|}~'):
             return render_template('product.html', form=form, message='Недопустимое название файла')
         session = db_session.create_session()
         product = Product(
@@ -234,13 +236,13 @@ def add_product():
     return render_template('product.html', form=form)
 
 
-@app.route('/product/<int:id>', methods=['GET', 'POST'])
+@app.route('/product/<int:id>', methods=['GET', 'POST'])  # Страница с редактированием товара
 @login_required
 def edit_product(id):
     if current_user.permission != 'seller':
         abort(403)
     form = ProductForm()
-    if request.method == "GET":
+    if request.method == 'GET':
         session = db_session.create_session()
         product = session.query(Product).filter(
             Product.id == id, Product.user == current_user).first()
@@ -256,9 +258,13 @@ def edit_product(id):
         else:
             abort(404)
     if form.validate_on_submit():
-        if not set(form.image_source.data.filename.lower()) <= set(
-                'abcdefghijklmnopqrstuvwxyz0123456789!\"#$%&\'()*+,-./:;<=>?@[\]^_`{|}~'):
-            return render_template('product.html', title='Редактирование товара', form=form, message='Недопустимое название файла')
+        if not set(form.image_source.data.filename.lower()) <=\
+               set('abcdefghijklmnopqrstuvwxyz0123456789!\'#$'
+                   '%&\'()*+,-./:;<=>?@[\]^_`{|}~'):
+            return render_template('product.html',
+                                   title='Редактирование товара',
+                                   form=form,
+                                   message='Недопустимое название файла')
         session = db_session.create_session()
         product = session.query(Product).filter(
             Product.id == id, Product.user == current_user).first()
@@ -290,7 +296,7 @@ def edit_product(id):
                            form=form)
 
 
-@app.route('/user_about/<int:id>')
+@app.route('/user_about/<int:id>')  # Страница с полной информацией о пользователе
 @login_required
 def user_about(id):
     session = db_session.create_session()
@@ -303,7 +309,7 @@ def user_about(id):
     return render_template('user_about.html', user=user, products=products)
 
 
-@app.route('/product_about/<int:id>', methods=['GET', 'POST'])
+@app.route('/product_about/<int:id>', methods=['GET', 'POST'])  # Страница с полной информацией о товаре
 @login_required
 def product_about(id):
     session = db_session.create_session()
@@ -320,7 +326,7 @@ def product_about(id):
     return render_template('product_about.html', product=product)
 
 
-@app.route('/transaction/<int:id>', methods=['GET', 'POST'])
+@app.route('/transaction/<int:id>', methods=['GET', 'POST'])  # Страница создания транзакции
 @login_required
 def transaction(id):
     session = db_session.create_session()
@@ -348,7 +354,7 @@ def transaction(id):
     return render_template('transaction.html', product=product)
 
 
-@app.route('/transactions/')
+@app.route('/transactions/')  # Страница со всеми транзакциями пользователя
 @login_required
 def transactions():
     session = db_session.create_session()
@@ -359,7 +365,7 @@ def transactions():
     return render_template('transactions.html', transactions=transactions)
 
 
-@app.route('/transaction_about/<int:id>', methods=['GET', 'POST'])
+@app.route('/transaction_about/<int:id>', methods=['GET', 'POST'])  # Страница с полной информацией о транзакции
 @login_required
 def transaction_about(id):
     session = db_session.create_session()
@@ -389,7 +395,7 @@ def transaction_about(id):
     return render_template('transaction.html', product=product)
 
 
-@app.route('/balance', methods=['GET', 'POST'])
+@app.route('/balance', methods=['GET', 'POST'])  # Страница с балансом
 @login_required
 def balance():
     if current_user.permission == 'admin':
@@ -438,7 +444,7 @@ def balance():
     return render_template('balance.html', form=form)
 
 
-@app.route('/products_check')
+@app.route('/products_check')  # Страница для админа, проверка товаров
 @login_required
 def products_check():
     session = db_session.create_session()
