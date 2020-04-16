@@ -8,6 +8,10 @@ tr.table-row{
     color: #606060;
 }
 
+img {
+    border-radius: 10px 10px 10px 10px;
+}
+
 .padding-left {
     padding-left: 10px;
 }

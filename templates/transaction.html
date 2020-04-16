@@ -88,6 +88,11 @@
 </table>
 <form method="POST" action="">
     <button class="btn btn-danger btn-lg btn-block" type="sumbit">Подтвердить покупку</button>
+        {% if message %}
+    <div class="alert alert-danger center" role="alert">
+        {{ message }}
+    </div>
+        {% endif %}
 </form>
             {% endif %}
 {% endblock %}

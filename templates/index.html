@@ -4,13 +4,6 @@
     GK-store
 {% endblock %}
 
-{% block head %}
-    {{ super() }}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <script src="{{ js_script_source }}"></script>
-{% endblock %}
-
 {% block content %}
         <h1 align="center" >Список товаров</h1>
         <div class="row">
@@ -21,21 +14,36 @@
                         <h4>Категории</h4>
                         <p>
                             {% for category in categories %}
-                            <input type="checkbox" value={{ category.name }} name="categories_checkbox">{{ category.name.capitalize() }}</input><br>
+                            <label><input type="checkbox" class="form-check-input" value={{ category.name }} name="categories_checkbox"{% if category.name in choosed_categories %}checked{% endif %}>{{ category.name.capitalize() }}</input></label><br>
                             {% endfor %}
                         </p>
-                        <button class="btn btn-primary" type="sumbit">Подобрать</button>
+                        <input type="submit" class="btn btn-primary btn-block" type="sumbit" name="choose" value="Подобрать">
+                        <input type="submit" class="btn btn-warning btn-block" type="sumbit" name="reset" value="Сбросить">
                     </form>
                 </div>
             </aside>
             {% endif %}
             <section class="col-md-10">
+                <form method="POST" action="" id="sorting">
+                    <div class="text-right">
+                <select class="custom-select col-md-4">
+                    <option onclick="sorting();" value="1" selected>По дате добавления(раньше)</option>
+                    <option onclick="sorting();" value="2">По дате добавления(позже)</option>
+                    <option onclick="sorting();" value="4">От дорогих к дешёвым</option>
+                    <option onclick="sorting();" value="4">По отзывам</option>
+                </select>
+                    <input type="submit" class="btn btn-success" value="Сортировать">
+                </div>
+                </form>
+
+
+
                 <table class="table">
-                    {% for product, image_source in products %}
+                    {% for product in products %}
                         {% if current_user.is_authenticated or product.is_published %}
                             <tr class="{% if current_user.is_authenticated %}table-row{% else %}disabled{% endif %}" data-href="/product_about/{{ product.id }}">
                                 <td class="table-primary" width="20%">
-                                    <img height="100px" src="{{ image_source }}"><br>
+                                    <img height="100px" src="{{ url_for('static', filename='img/' + product.image_source|string) }}"><br>
                                     <a href="/user_about/{{ product.user_id }}">{% if product.user.surname %}{{ product.user.surname }} {% endif %}{{ product.user.name }}</a>
                                 </td>
                                 <td class="table-primary" width="60%">

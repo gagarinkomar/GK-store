@@ -3,3 +3,7 @@ $(document).ready(function($) {
         window.document.location = $(this).data("href");
     });
 });
+
+function sorting() {
+document.getElementById('sorting').submit();
+}

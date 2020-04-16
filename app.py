@@ -38,16 +38,22 @@ def load_user(user_id):
 @app.route('/', methods=['GET', 'POST'])
 def index():
     choosed_categories = set()
+    print(request.form.getlist('sorting'))
     if request.method == 'POST':
-        choosed_categories = set(request.form.getlist('categories_checkbox'))
+        print(123)
+        if request.form.getlist('reset'):
+            choosed_categories = set()
+        else:
+            choosed_categories = set(request.form.getlist('categories_checkbox'))
     session = db_session.create_session()
     products = session.query(Product).filter(Product.is_checked, Product.is_sold != True).all()
     products = [
-        (product, url_for('static', filename=f'img/{product.image_source}'))
+        product
         for product in filter(lambda x: choosed_categories <= set(
             map(lambda y: y.name, x.categories)), products)]
-    categories = session.query(Category).all()
-    return render_template('index.html', products=products, categories=categories)
+    categories = session.query(Category).filter().all()
+    categories = filter(lambda category: any(filter(lambda product: product.is_checked and not product.is_sold, category.products)), categories)
+    return render_template('index.html', products=products, categories=categories, choosed_categories=choosed_categories)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -252,10 +258,8 @@ def user_about(id):
         abort(404)
     if user.permission == 'admin' and current_user.permission != 'admin':
         abort(403)
-    user_avatar_source = url_for('static', filename=f'img/{user.avatar_source}')
     products = session.query(Product).filter(Product.is_checked, Product.user_id == id).all()
-    products = [(product, url_for('static', filename=f'img/{product.image_source}'))for product in products]
-    return render_template('user_about.html', user=user, user_avatar_source=user_avatar_source, products=products)
+    return render_template('user_about.html', user=user, products=products)
 
 
 @app.route('/product_about/<int:id>', methods=['GET', 'POST'])
@@ -272,8 +276,7 @@ def product_about(id):
         product.checked_date = datetime.datetime.now()
         session.commit()
         return redirect(url_for('products_check'))
-    product_image_source = url_for('static', filename=f'img/{product.image_source}')
-    return render_template('product_about.html', product=product, product_image_source=product_image_source)
+    return render_template('product_about.html', product=product)
 
 
 @app.route('/transaction/<int:id>', methods=['GET', 'POST'])
@@ -284,6 +287,8 @@ def transaction(id):
     if not product.is_checked or product.is_sold:
         abort(404)
     if request.method == 'POST':
+        if current_user.balance < product.price:
+            return render_template('transaction.html', product=product, message='Недостаточно средств')
         user = session.query(User).filter(User.id == current_user.id).first()
         admin = session.query(User).filter(User.permission == 'admin').first()
         transaction = Transaction()
@@ -371,6 +376,7 @@ def balance():
             user.balance -= promocode.award
             session.add(promocode)
             session.commit()
+            current_user.balance -= promocode.award
             return render_template('balance.html', form=form,
                                    message='Промокод успешно создан')
         if not promocodes:
@@ -396,15 +402,12 @@ def balance():
 def products_check():
     session = db_session.create_session()
     products = session.query(Product).filter(Product.is_checked != True).all()
-    products = [
-        (product, url_for('static', filename=f'img/{product.image_source}'))
-        for product in products]
     return render_template('index.html', products=products)
 
 
 
 def main():
-    db_session.global_init('db/GK-store.sqlite')
+    db_session.global_init(os.path.join('db', 'GK-store.sqlite'))
 
     app.run(debug=True)
 

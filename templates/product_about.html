@@ -8,7 +8,7 @@
     <h1 align="center">{{ product.title }}</h1>
     <table><tr>
         <td class="table-info" width="30%">
-            <img max-height="300px" width="100%" src="{{ product_image_source }}"><br>
+            <img max-height="300px" width="100%" src="{{ url_for('static', filename='img/' + product.image_source|string) }}"><br>
         </td>
         <td class="table-info" width="2%"></td>
         <td class="table-info" width="68%">
