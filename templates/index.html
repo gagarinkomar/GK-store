@@ -24,20 +24,20 @@
             </aside>
             {% endif %}
             <section class="col-md-10">
-                <form method="POST" action="" id="sorting">
-                    <div class="text-right">
-                <select class="custom-select col-md-4">
-                    <option onclick="sorting();" value="1" selected>По дате добавления(раньше)</option>
-                    <option onclick="sorting();" value="2">По дате добавления(позже)</option>
-                    <option onclick="sorting();" value="4">От дорогих к дешёвым</option>
-                    <option onclick="sorting();" value="4">По отзывам</option>
-                </select>
-                    <input type="submit" class="btn btn-success" value="Сортировать">
-                </div>
+                {% if form %}
+                <form method="POST" action="" enctype="multipart/form-data">
+                    <div class="container">
+                        <div class="row justify-content-end no-gutters">
+                            <div class="col-4">
+                            {{ form.sorting(class="form-control") }}
+                            </div>
+                            <div class="col-1.5">
+                                {{ form.submit(type="submit", class="btn btn-success") }}
+                            </div>
+                        </div>
+                    </div>
                 </form>
-
-
-
+                {% endif %}
                 <table class="table">
                     {% for product in products %}
                         {% if current_user.is_authenticated or product.is_published %}

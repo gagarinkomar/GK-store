@@ -12,7 +12,7 @@ from data.categories import Category
 from data.transactions import Transaction
 from data.promocodes import Promocode
 from data.forms import RegisterForm, LoginForm, ProductForm, EditUserForm,\
-    PromocodeForm, PromocodeCreateForm
+    PromocodeForm, PromocodeCreateForm, SortingForm
 
 
 
@@ -37,10 +37,9 @@ def load_user(user_id):
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
+    form = SortingForm()
     choosed_categories = set()
-    print(request.form.getlist('sorting'))
     if request.method == 'POST':
-        print(123)
         if request.form.getlist('reset'):
             choosed_categories = set()
         else:
@@ -51,15 +50,30 @@ def index():
         product
         for product in filter(lambda x: choosed_categories <= set(
             map(lambda y: y.name, x.categories)), products)]
+    if request.form.getlist('sorting'):
+        if form.sorting.data == '1' or form.sorting.data == '2':
+            key = lambda product: datetime.datetime.now() - product.checked_date
+        elif form.sorting.data == '3' or form.sorting.data == '4':
+            key = lambda product: product.price
+        else:
+            key = lambda product: product.user.sum_rating / product.user.count_rating if product.user.count_rating else 0
+        if form.sorting.data == '2' or form.sorting.data == '4' or form.sorting.data == '5':
+            products.sort(key=key, reverse=True)
+        else:
+            products.sort(key=key)
     categories = session.query(Category).filter().all()
     categories = filter(lambda category: any(filter(lambda product: product.is_checked and not product.is_sold, category.products)), categories)
-    return render_template('index.html', products=products, categories=categories, choosed_categories=choosed_categories)
+    return render_template('index.html', products=products, categories=categories, choosed_categories=choosed_categories, form=form)
 
 
 @app.route('/register', methods=['GET', 'POST'])
 def reqister():
     form = RegisterForm()
     if form.validate_on_submit():
+        if not set(form.avatar_source.data.filename.lower()) <= set('abcdefghijklmnopqrstuvwxyz0123456789!\"#$%&\'()*+,-./:;<=>?@[\]^_`{|}~'):
+            return render_template('register.html', title='Регистрация',
+                                   form=form,
+                                   message="Недопустимое название файла")
         if form.password_new.data != form.password_again.data:
             return render_template('register.html', title='Регистрация',
                                    form=form,
@@ -111,17 +125,22 @@ def user():
         session = db_session.create_session()
         user = session.query(User).filter(User.id == current_user.id).first()
         if user:
+            email = user.email
+            permission = user.permission
+            if not set(form.avatar_source.data.filename.lower()) <= set(
+                    'abcdefghijklmnopqrstuvwxyz0123456789!\"#$%&\'()*+,-./:;<=>?@[\]^_`{|}~'):
+                return render_template('register.html',
+                                       title='Редактирование пользователя',
+                                       email=email, form=form,
+                                       permission=permission,
+                                       message='Недопустимое название файла')
             if not user.check_password(form.password.data):
-                email = user.email
-                permission = user.permission
                 return render_template('register.html',
                                        title='Редактирование пользователя',
                                        email=email, form=form,
                                        permission=permission,
                                        message='Неверный пароль')
             if form.password_new.data != form.password_again.data:
-                email = user.email
-                permission = user.permission
                 return render_template('register.html',
                                        title='Редактирование пользователя',
                                        email=email, form=form,
@@ -172,6 +191,9 @@ def add_product():
         abort(403)
     form = ProductForm()
     if form.validate_on_submit():
+        if not set(form.image_source.data.filename.lower()) <= set(
+                'abcdefghijklmnopqrstuvwxyz0123456789!\"#$%&\'()*+,-./:;<=>?@[\]^_`{|}~'):
+            return render_template('product.html', form=form, message='Недопустимое название файла')
         session = db_session.create_session()
         product = Product(
             user_id=current_user.id,
@@ -218,6 +240,9 @@ def edit_product(id):
         else:
             abort(404)
     if form.validate_on_submit():
+        if not set(form.image_source.data.filename.lower()) <= set(
+                'abcdefghijklmnopqrstuvwxyz0123456789!\"#$%&\'()*+,-./:;<=>?@[\]^_`{|}~'):
+            return render_template('product.html', title='Редактирование товара', form=form, message='Недопустимое название файла')
         session = db_session.create_session()
         product = session.query(Product).filter(
             Product.id == id, Product.user == current_user).first()
