@@ -1,4 +1,5 @@
 import sqlalchemy
+from sqlalchemy_serializer import SerializerMixin
 
 from .db_session import SqlAlchemyBase
 
@@ -12,7 +13,7 @@ product_to_category_table = sqlalchemy.Table('product_to_category',
 )
 
 
-class Category(SqlAlchemyBase):
+class Category(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'categories'
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True,

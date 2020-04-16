@@ -1,11 +1,12 @@
 import datetime
 import sqlalchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy_serializer import SerializerMixin
 
 from .db_session import SqlAlchemyBase
 
 
-class Promocode(SqlAlchemyBase):
+class Promocode(SqlAlchemyBase, SerializerMixin):
     def set_content(self, content):
         self.hashed_content = generate_password_hash(content)
 

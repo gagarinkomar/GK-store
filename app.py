@@ -1,11 +1,12 @@
 import os
-from flask import Flask, render_template, redirect, abort, request, url_for
+from flask import Flask, render_template, redirect, abort, request, url_for, make_response, jsonify
 from flask_login import LoginManager, login_user, login_required, logout_user,\
     current_user
 from flask_uploads import configure_uploads, IMAGES, UploadSet
 import datetime
+from flask_restful import abort, Api
 
-from data import db_session
+from data import db_session, product_resources, user_resources, category_resources, promocode_resources
 from data.users import User
 from data.products import Product
 from data.categories import Category
@@ -22,11 +23,26 @@ app.config['UPLOADED_IMAGES_DEST'] = os.path.join('static', 'img')
 app.config['UPLOADED_PHOTOS_ALLOW'] = set(['png', 'jpg', 'jpeg'])
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
+api = Api(app)
+api.add_resource(product_resources.ProductListResource, '/api/products|<api_key>')
+api.add_resource(product_resources.ProductResource, '/api/product/<int:product_id>|<api_key>')
+api.add_resource(user_resources.UserListResource, '/api/users|<api_key>')
+api.add_resource(user_resources.UserResource, '/api/user/<int:user_id>|<api_key>')
+api.add_resource(category_resources.CategoryListResource, '/api/categories|<api_key>')
+api.add_resource(category_resources.CategoryResource, '/api/category/<int:category_id>|<api_key>')
+api.add_resource(promocode_resources.PromocodeListResource, '/api/promocodes|<api_key>')
+api.add_resource(promocode_resources.PromocodeResource, '/api/promocode/<int:promocode_id>|<api_key>')
+
 login_manager = LoginManager()
 login_manager.init_app(app)
 
 images = UploadSet('images', IMAGES)
 configure_uploads(app, images)
+
+
+@app.errorhandler(404)
+def not_found(error):
+    return make_response(jsonify({'error': 'Not found'}), 404)
 
 
 @login_manager.user_loader
