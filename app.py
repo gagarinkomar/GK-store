@@ -340,8 +340,9 @@ def user_about(id):
         abort(404)
     if user.permission == 'admin' and current_user.permission != 'admin':
         abort(403)
-    products = session.query(Product).filter(Product.is_checked,
-                                             Product.user_id == id).all()
+    products = session.query(Product).filter(
+        Product.is_checked, Product.user_id == id,
+        Product.is_sold != True).all()
     return render_template('user_about.html', user=user, products=products)
 
 
