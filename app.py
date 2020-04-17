@@ -505,7 +505,7 @@ def products_check():
 def main():
     db_session.global_init(os.path.join('db', 'GK-store.sqlite'))
 
-    app.run(debug=True)
+    app.run()
 
 
 if __name__ == '__main__':
