@@ -13,7 +13,6 @@ class Promocode(SqlAlchemyBase, SerializerMixin):
     def check_content(self, content):
         return check_password_hash(self.hashed_content, content)
 
-
     __tablename__ = 'promocodes'
 
     id = sqlalchemy.Column(sqlalchemy.Integer,

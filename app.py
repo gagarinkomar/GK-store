@@ -1,12 +1,14 @@
 import os
-from flask import Flask, render_template, redirect, abort, request, url_for, make_response, jsonify
+from flask import Flask, render_template, redirect, abort, request, url_for,\
+    make_response, jsonify
 from flask_login import LoginManager, login_user, login_required, logout_user,\
     current_user
 from flask_uploads import configure_uploads, IMAGES, UploadSet
 import datetime
 from flask_restful import abort, Api
 
-from data import db_session, product_resources, user_resources, category_resources, promocode_resources
+from data import db_session, product_resources, user_resources,\
+    category_resources, promocode_resources
 from data.users import User
 from data.products import Product
 from data.categories import Category
@@ -16,7 +18,6 @@ from data.forms import RegisterForm, LoginForm, ProductForm, EditUserForm,\
     PromocodeForm, PromocodeCreateForm, SortingForm
 
 
-
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '474B70726F64756374696F6E5F3533637233375F6B3379'
 app.config['UPLOADED_IMAGES_DEST'] = os.path.join('static', 'img')
@@ -24,14 +25,22 @@ app.config['UPLOADED_PHOTOS_ALLOW'] = set(['png', 'jpg', 'jpeg'])
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 api = Api(app)
-api.add_resource(product_resources.ProductListResource, '/api/products|<api_key>')
-api.add_resource(product_resources.ProductResource, '/api/product/<int:product_id>|<api_key>')
-api.add_resource(user_resources.UserListResource, '/api/users|<api_key>')
-api.add_resource(user_resources.UserResource, '/api/user/<int:user_id>|<api_key>')
-api.add_resource(category_resources.CategoryListResource, '/api/categories|<api_key>')
-api.add_resource(category_resources.CategoryResource, '/api/category/<int:category_id>|<api_key>')
-api.add_resource(promocode_resources.PromocodeListResource, '/api/promocodes|<api_key>')
-api.add_resource(promocode_resources.PromocodeResource, '/api/promocode/<int:promocode_id>|<api_key>')
+api.add_resource(product_resources.ProductListResource,
+                 '/api/products|<api_key>')
+api.add_resource(product_resources.ProductResource,
+                 '/api/product/<int:product_id>|<api_key>')
+api.add_resource(user_resources.UserListResource,
+                 '/api/users|<api_key>')
+api.add_resource(user_resources.UserResource,
+                 '/api/user/<int:user_id>|<api_key>')
+api.add_resource(category_resources.CategoryListResource,
+                 '/api/categories|<api_key>')
+api.add_resource(category_resources.CategoryResource,
+                 '/api/category/<int:category_id>|<api_key>')
+api.add_resource(promocode_resources.PromocodeListResource,
+                 '/api/promocodes|<api_key>')
+api.add_resource(promocode_resources.PromocodeResource,
+                 '/api/promocode/<int:promocode_id>|<api_key>')
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -51,7 +60,8 @@ def load_user(user_id):
     return session.query(User).get(user_id)
 
 
-@app.route('/', methods=['GET', 'POST'])  # Главная страница со списком всех товаров
+@app.route('/', methods=['GET', 'POST'])
+# Главная страница со списком всех товаров
 def index():
     form = SortingForm()
     choosed_categories = set()
@@ -59,27 +69,37 @@ def index():
         if request.form.getlist('reset'):
             choosed_categories = set()
         else:
-            choosed_categories = set(request.form.getlist('categories_checkbox'))
+            choosed_categories = set(request.form.getlist(
+                'categories_checkbox'))
     session = db_session.create_session()
-    products = session.query(Product).filter(Product.is_checked, Product.is_sold != True).all()
+    products = session.query(Product).filter(
+        Product.is_checked, False if not Product.is_sold else True).all()
     products = [
         product
         for product in filter(lambda x: choosed_categories <= set(
             map(lambda y: y.name, x.categories)), products)]
     if request.form.getlist('sorting'):
         if form.sorting.data == '1' or form.sorting.data == '2':
-            key = lambda product: datetime.datetime.now() - product.checked_date
+            key = lambda product: datetime.datetime.now(
+            ) - product.checked_date
         elif form.sorting.data == '3' or form.sorting.data == '4':
             key = lambda product: product.price
         else:
-            key = lambda product: product.user.sum_rating / product.user.count_rating if product.user.count_rating else 0
-        if form.sorting.data == '2' or form.sorting.data == '4' or form.sorting.data == '5':
+            key = lambda product: \
+                product.user.sum_rating /\
+                product.user.count_rating if product.user.count_rating else 0
+        if form.sorting.data == '2' or form.sorting.data == '4' or \
+                form.sorting.data == '5':
             products.sort(key=key, reverse=True)
         else:
             products.sort(key=key)
     categories = session.query(Category).filter().all()
-    categories = filter(lambda category: any(filter(lambda product: product.is_checked and not product.is_sold, category.products)), categories)
-    return render_template('index.html', products=products, categories=categories, choosed_categories=choosed_categories, form=form)
+    categories = filter(lambda category: any(filter(
+        lambda product: product.is_checked and not product.is_sold,
+        category.products)), categories)
+    return render_template('index.html', products=products,
+                           categories=categories,
+                           choosed_categories=choosed_categories, form=form)
 
 
 @app.route('/register', methods=['GET', 'POST'])  # Страница регистрации
@@ -121,7 +141,8 @@ def reqister():
     return render_template('register.html', form=form)
 
 
-@app.route('/user', methods=['GET', 'POST'])  # Страница с редактированием профиля пользователя
+@app.route('/user', methods=['GET', 'POST'])
+# Страница с редактированием профиля пользователя
 @login_required
 def user():
     email, permission = None, None
@@ -146,7 +167,8 @@ def user():
             email = user.email
             permission = user.permission
             if not set(form.avatar_source.data.filename.lower()) <= set(
-                    'abcdefghijklmnopqrstuvwxyz0123456789!\'#$%&\'()*+,-./:;<=>?@[\]^_`{|}~'):
+                    'abcdefghijklmnopqrstuvwxyz0123456789!\'#$%&\'(' +
+                    ')*+,-./:;<=>?@[\]^_`{|}~'):
                 return render_template('register.html',
                                        title='Редактирование пользователя',
                                        email=email, form=form,
@@ -177,7 +199,9 @@ def user():
             return redirect('/')
         else:
             abort(404)
-    return render_template('register.html', title='Редактирование пользователя', email=email, form=form, permission=permission)
+    return render_template('register.html',
+                           title='Редактирование пользователя',
+                           email=email, form=form, permission=permission)
 
 
 @app.route('/login', methods=['GET', 'POST'])  # Страница авторизации в аккаунт
@@ -185,7 +209,8 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         session = db_session.create_session()
-        user = session.query(User).filter(User.email == form.email.data).first()
+        user = session.query(User).filter(
+            User.email == form.email.data).first()
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
             return redirect('/')
@@ -209,9 +234,11 @@ def add_product():
         abort(403)
     form = ProductForm()
     if form.validate_on_submit():
-        if not set(form.image_source.data.filename.lower()) <= set(
-                'abcdefghijklmnopqrstuvwxyz0123456789!\'#$%&\'()*+,-./:;<=>?@[\]^_`{|}~'):
-            return render_template('product.html', form=form, message='Недопустимое название файла')
+        if not set(form.image_source.data.filename.lower()) <=\
+               set('abcdefghijklmnopqrstuvwxyz0123456789!\'#$'
+                   '%&\'()*+,-./:;<=>?@[\]^_`{|}~'):
+            return render_template('product.html', form=form,
+                                   message='Недопустимое название файла')
         session = db_session.create_session()
         product = Product(
             user_id=current_user.id,
@@ -225,18 +252,21 @@ def add_product():
         if form.image_source.data.filename:
             product.image_source = images.save(form.image_source.data)
         for category_name in form.categories.data.lower().split(' '):
-            if category_name not in map(lambda x: x.name, session.query(Category).all()):
+            if category_name not in map(lambda x: x.name,
+                                        session.query(Category).all()):
                 category = Category(name=category_name)
                 session.add(category)
                 session.commit()
-            product.categories.append(session.query(Category).filter(Category.name == category_name).first())
+            product.categories.append(session.query(Category).filter(
+                Category.name == category_name).first())
         session.add(product)
         session.commit()
         return redirect('/')
     return render_template('product.html', form=form)
 
 
-@app.route('/product/<int:id>', methods=['GET', 'POST'])  # Страница с редактированием товара
+@app.route('/product/<int:id>', methods=['GET', 'POST'])
+# Страница с редактированием товара
 @login_required
 def edit_product(id):
     if current_user.permission != 'seller':
@@ -296,7 +326,8 @@ def edit_product(id):
                            form=form)
 
 
-@app.route('/user_about/<int:id>')  # Страница с полной информацией о пользователе
+@app.route('/user_about/<int:id>')
+# Страница с полной информацией о пользователе
 @login_required
 def user_about(id):
     session = db_session.create_session()
@@ -305,11 +336,13 @@ def user_about(id):
         abort(404)
     if user.permission == 'admin' and current_user.permission != 'admin':
         abort(403)
-    products = session.query(Product).filter(Product.is_checked, Product.user_id == id).all()
+    products = session.query(Product).filter(Product.is_checked,
+                                             Product.user_id == id).all()
     return render_template('user_about.html', user=user, products=products)
 
 
-@app.route('/product_about/<int:id>', methods=['GET', 'POST'])  # Страница с полной информацией о товаре
+@app.route('/product_about/<int:id>', methods=['GET', 'POST'])
+# Страница с полной информацией о товаре
 @login_required
 def product_about(id):
     session = db_session.create_session()
@@ -326,7 +359,8 @@ def product_about(id):
     return render_template('product_about.html', product=product)
 
 
-@app.route('/transaction/<int:id>', methods=['GET', 'POST'])  # Страница создания транзакции
+@app.route('/transaction/<int:id>', methods=['GET', 'POST'])
+# Страница создания транзакции
 @login_required
 def transaction(id):
     session = db_session.create_session()
@@ -335,7 +369,8 @@ def transaction(id):
         abort(404)
     if request.method == 'POST':
         if current_user.balance < product.price:
-            return render_template('transaction.html', product=product, message='Недостаточно средств')
+            return render_template('transaction.html', product=product,
+                                   message='Недостаточно средств')
         user = session.query(User).filter(User.id == current_user.id).first()
         admin = session.query(User).filter(User.permission == 'admin').first()
         transaction = Transaction()
@@ -361,18 +396,24 @@ def transactions():
     if current_user.permission == 'admin':
         transactions = session.query(Transaction).all()
     else:
-        transactions = session.query(Transaction).filter((Transaction.buyer_id == current_user.id) | (Transaction.seller_id == current_user.id))
+        transactions = session.query(Transaction).filter(
+            (Transaction.buyer_id == current_user.id) | (
+                    Transaction.seller_id == current_user.id))
     return render_template('transactions.html', transactions=transactions)
 
 
-@app.route('/transaction_about/<int:id>', methods=['GET', 'POST'])  # Страница с полной информацией о транзакции
+@app.route('/transaction_about/<int:id>', methods=['GET', 'POST'])
+# Страница с полной информацией о транзакции
 @login_required
 def transaction_about(id):
     session = db_session.create_session()
-    transaction = session.query(Transaction).filter(Transaction.id == id).first()
+    transaction = session.query(Transaction).filter(
+        Transaction.id == id).first()
     if not transaction:
         abort(404)
-    if transaction.buyer_id != current_user.id and transaction.seller_id != current_user.id and current_user.permission != 'admin':
+    if (transaction.buyer_id != current_user.id) and (
+            transaction.seller_id != current_user.id) and (
+            current_user.permission != 'admin'):
         abort(403)
     if request.method == 'POST':
         rating = request.form.getlist('rating')
@@ -410,8 +451,10 @@ def balance():
                    promocodes))
         if current_user.permission == 'admin':
             if promocodes:
-                return render_template('balance.html', form=form,
-                                       message='Промокод уже существует(существовал)')
+                return render_template('balance.html',
+                                       form=form,
+                                       message='Промокод уже сущес'
+                                               'твует(существовал)')
             if current_user.balance < form.award.data:
                 return render_template('balance.html', form=form,
                                        message='Недостаточно средств')
@@ -427,12 +470,14 @@ def balance():
             return render_template('balance.html', form=form,
                                    message='Промокод успешно создан')
         if not promocodes:
-            return render_template('balance.html', form=form, message='Такого промокода не существует')
+            return render_template('balance.html', form=form,
+                                   message='Такого промокода не существует')
         promocodes = list(
             filter(lambda x: not x.is_activated,
                    promocodes))
         if not promocodes:
-            return render_template('balance.html', form=form, message='Промокод уже активирован')
+            return render_template('balance.html', form=form,
+                                   message='Промокод уже активирован')
         promocode = promocodes[0]
         user = session.query(User).filter(User.id == current_user.id).first()
         user.balance += promocode.award
@@ -448,9 +493,9 @@ def balance():
 @login_required
 def products_check():
     session = db_session.create_session()
-    products = session.query(Product).filter(Product.is_checked != True).all()
+    products = session.query(Product).filter(
+        True if not Product.is_checked else False).all()
     return render_template('index.html', products=products)
-
 
 
 def main():

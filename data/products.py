@@ -28,7 +28,7 @@ class Product(SqlAlchemyBase, SerializerMixin):
     image_source = sqlalchemy.Column(sqlalchemy.String,
                                      default='default_image.png')
     last_changed_date = sqlalchemy.Column(sqlalchemy.DateTime,
-                                     default=datetime.datetime.now)
+                                          default=datetime.datetime.now)
     user = orm.relation('User')
     categories = orm.relation('Category',
                               secondary='product_to_category',

@@ -4,13 +4,11 @@ from sqlalchemy_serializer import SerializerMixin
 from .db_session import SqlAlchemyBase
 
 
-product_to_category_table = sqlalchemy.Table('product_to_category',
-                                     SqlAlchemyBase.metadata,
-    sqlalchemy.Column('product', sqlalchemy.Integer,
-                      sqlalchemy.ForeignKey('products.id')),
-    sqlalchemy.Column('category', sqlalchemy.Integer,
-                      sqlalchemy.ForeignKey('categories.id'))
-)
+product_to_category_table = sqlalchemy.Table(
+    'product_to_category', SqlAlchemyBase.metadata, sqlalchemy.Column(
+        'product', sqlalchemy.Integer, sqlalchemy.ForeignKey('products.id')),
+    sqlalchemy.Column('category', sqlalchemy.Integer, sqlalchemy.ForeignKey(
+        'categories.id')))
 
 
 class Category(SqlAlchemyBase, SerializerMixin):

@@ -19,7 +19,9 @@ class ProductResource(Resource):
         abort_if_product_not_found(product_id)
         session = db_session.create_session()
         product = session.query(Product).get(product_id)
-        return jsonify({'product': product.to_dict(only=('title', 'short_about', 'about', 'price', 'user_id', 'is_published', 'created_date'))})
+        return jsonify({'product': product.to_dict(
+            only=('title', 'short_about', 'about', 'price',
+                  'user_id', 'is_published', 'created_date'))})
 
     def delete(self, product_id, api_key):
         abort_if_invalid_api_key(api_key)
@@ -48,7 +50,9 @@ class ProductListResource(Resource):
         abort_if_invalid_api_key(api_key)
         session = db_session.create_session()
         products = session.query(Product).all()
-        return jsonify({'products': [item.to_dict(only=('title', 'short_about', 'price', 'user_id')) for item in products]})
+        return jsonify({'products': [item.to_dict(
+            only=('title', 'short_about',
+                  'price', 'user_id')) for item in products]})
 
     def post(self, api_key):
         abort_if_invalid_api_key(api_key)
