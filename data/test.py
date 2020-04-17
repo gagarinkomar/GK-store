@@ -1,5 +1,4 @@
 from requests import get, post, delete
-import sys
 
 
 api_key = "676B5F7365637265745F6170695F6B6579"
@@ -32,7 +31,8 @@ print('get', '/api/users')
 print(get('http://localhost:5000/api/users' + '|' + api_key).json())
 print()
 print('delete', '/api/user/9999999999')
-print(delete('http://localhost:5000/api/user/9999999999' + '|' + api_key).json())
+print(delete('http://localhost:5000/api/user/9999999999' + '|' +
+             api_key).json())
 print()
 print('get', '/api/users')
 print(get('http://localhost:5000/api/users' + '|' + api_key).json())
@@ -46,7 +46,8 @@ print('get', '/api/product/1')
 print(get('http://localhost:5000/api/product/1' + '|' + api_key).json())
 print()
 print('get', '/api/product/9999999999')
-print(get('http://localhost:5000/api/product/9999999999' + '|' + api_key).json())
+print(get('http://localhost:5000/api/product/9999999999' + '|' +
+          api_key).json())
 print()
 print('get', '/api/product/abc')
 print(get('http://localhost:5000/api/product/abc' + '|' + api_key).json())
@@ -63,13 +64,14 @@ print(post('http://localhost:5000/api/products' + '|' + api_key, json={
     'price': 1,
     'purchased_content': 'test',
     'user_id': 1
-}).json())
+    }).json())
 print()
 print('get', '/api/products')
 print(get('http://localhost:5000/api/products' + '|' + api_key).json())
 print()
 print('delete', '/api/product/9999999999')
-print(delete('http://localhost:5000/api/product/9999999999' + '|' + api_key).json())
+print(delete('http://localhost:5000/api/product/9999999999' + '|' +
+             api_key).json())
 print()
 print('get', '/api/products')
 print(get('http://localhost:5000/api/products' + '|' + api_key).json())
@@ -84,7 +86,8 @@ print('get', '/api/category/1')
 print(get('http://localhost:5000/api/category/1' + '|' + api_key).json())
 print()
 print('get', '/api/category/9999999999')
-print(get('http://localhost:5000/api/category/9999999999' + '|' + api_key).json())
+print(get('http://localhost:5000/api/category/9999999999' + '|' +
+          api_key).json())
 print()
 print('get', '/api/category/abc')
 print(get('http://localhost:5000/api/category/abc' + '|' + api_key).json())
@@ -102,7 +105,8 @@ print('get', '/api/categories')
 print(get('http://localhost:5000/api/categories' + '|' + api_key).json())
 print()
 print('delete', '/api/category/9999999999')
-print(delete('http://localhost:5000/api/category/9999999999' + '|' + api_key).json())
+print(delete('http://localhost:5000/api/category/9999999999' + '|' +
+             api_key).json())
 print()
 print('get', '/api/categories')
 print(get('http://localhost:5000/api/categories' + '|' + api_key).json())
@@ -117,4 +121,69 @@ print(post('http://localhost:5000/api/promocodes' + '|' + api_key, json={
 }).json())
 print()
 print('delete', '/api/promocode/9999999999')
-print(delete('http://localhost:5000/api/promocode/9999999999' + '|' + api_key).json())
+print(delete('http://localhost:5000/api/promocode/9999999999' + '|' +
+             api_key).json())
+
+print('\n------------------------------------------------------------\n')
+
+print('get', '/api/transactions')
+print(get('http://localhost:5000/api/transactions' + '|' + api_key).json())
+print()
+print('post', '/api/users')
+print(post('http://localhost:5000/api/users' + '|' + api_key, json={
+    'id': 9999999991,
+    'name': 'buyer',
+    'email': 'buyer@test.test',
+    'permission': 'buyer',
+    'password': 'buyer'
+}).json())
+print()
+print('post', '/api/users')
+print(post('http://localhost:5000/api/users' + '|' + api_key, json={
+    'id': 9999999992,
+    'name': 'seller',
+    'email': 'seller@test.test',
+    'permission': 'seller',
+    'password': 'seller'
+}).json())
+print()
+print('post', '/api/products')
+print(post('http://localhost:5000/api/products' + '|' + api_key, json={
+    'id': 9999999999,
+    'title': 'test',
+    'short_about': 'test',
+    'about': 'test',
+    'price': 0,
+    'purchased_content': 'test',
+    'user_id': 9999999992
+}).json())
+print()
+print('post', '/api/transactions')
+print(post('http://localhost:5000/api/transactions' + '|' + api_key, json={
+    'id': 9999999999,
+    'seller_id': 9999999992,
+    'buyer_id': 9999999991,
+    'product_id': 9999999999,
+}).json())
+print()
+print('get', '/api/transactions')
+print(get('http://localhost:5000/api/transactions' + '|' + api_key).json())
+print()
+print('delete', '/api/transaction/9999999999')
+print(delete('http://localhost:5000/api/transaction/9999999999' + '|' +
+             api_key).json())
+print()
+print('get', '/api/transactions')
+print(get('http://localhost:5000/api/transactions' + '|' + api_key).json())
+print()
+print('delete', '/api/user/9999999991')
+print(delete('http://localhost:5000/api/user/9999999991' + '|' +
+             api_key).json())
+print()
+print('delete', '/api/user/9999999992')
+print(delete('http://localhost:5000/api/user/9999999992' + '|' +
+             api_key).json())
+print()
+print('delete', '/api/product/9999999999')
+print(delete('http://localhost:5000/api/product/9999999999' + '|' +
+             api_key).json())

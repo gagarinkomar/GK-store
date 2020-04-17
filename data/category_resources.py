@@ -53,6 +53,9 @@ class CategoryListResource(Resource):
             name=args['name']
         )
         if 'id' in args:
+            if session.query(Category).filter(
+                    Category.id == args['id']).first():
+                return jsonify({'error': 'id already exists'})
             category.id = args['id']
         session.add(category)
         session.commit()

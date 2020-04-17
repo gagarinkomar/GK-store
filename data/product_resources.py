@@ -67,6 +67,8 @@ class ProductListResource(Resource):
             purchased_content=args['purchased_content']
         )
         if 'id' in args:
+            if session.query(Product).filter(Product.id == args['id']).first():
+                return jsonify({'error': 'id already exists'})
             product.id = args['id']
         if 'image_source' in args:
             product.image_source = args['image_source']

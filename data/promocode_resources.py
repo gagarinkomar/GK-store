@@ -40,6 +40,9 @@ class PromocodeListResource(Resource):
             award=args['award']
         )
         if 'id' in args:
+            if session.query(Promocode).filter(
+                    Promocode.id == args['id']).first():
+                return jsonify({'error': 'id already exists'})
             promocode.id = args['id']
         promocode.set_content(args['content'])
         session.add(promocode)

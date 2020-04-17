@@ -71,6 +71,8 @@ class UserListResource(Resource):
             permission=args['permission']
         )
         if 'id' in args:
+            if session.query(User).filter(User.id == args['id']).first():
+                return jsonify({'error': 'id already exists'})
             user.id = args['id']
         if 'surname' in args:
             user.surname = args['surname']

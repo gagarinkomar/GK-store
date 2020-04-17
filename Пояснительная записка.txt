@@ -15,7 +15,7 @@ GK-store - интернет-магазин аккаунтов и ключей д
 Структура:
 app.py - запуск сайта
 users.py, transactions.py, promocodes.py, products.py, categories.py - модели дб
-user_resources.py, promocode_resources.py, product_resources.py, category_resources.py - файлы для работы с api
+user_resources.py, promocode_resources.py, product_resources.py, category_resources.py, transaction_resorces.py - файлы для работы с api
 test.py - тесты api
 forms.py - формы flask-wtf
 api_config.py - файл с api_key и проверкой api_key

@@ -8,7 +8,7 @@ import datetime
 from flask_restful import abort, Api
 
 from data import db_session, product_resources, user_resources,\
-    category_resources, promocode_resources
+    category_resources, promocode_resources, transaction_resources
 from data.users import User
 from data.products import Product
 from data.categories import Category
@@ -41,6 +41,10 @@ api.add_resource(promocode_resources.PromocodeListResource,
                  '/api/promocodes|<api_key>')
 api.add_resource(promocode_resources.PromocodeResource,
                  '/api/promocode/<int:promocode_id>|<api_key>')
+api.add_resource(transaction_resources.TransactionListResource,
+                 '/api/transactions|<api_key>')
+api.add_resource(transaction_resources.TransactionResource,
+                 '/api/transaction/<int:transaction_id>|<api_key>')
 
 login_manager = LoginManager()
 login_manager.init_app(app)
