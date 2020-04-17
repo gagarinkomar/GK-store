@@ -6,26 +6,24 @@
 
 {% block content %}
         <h1 align="center" >Список товаров</h1>
+{% if form %}<form method="POST" action="" enctype="multipart/form-data">{% endif %}
         <div class="row">
             {% if categories %}
             <aside class="col-md-2">
                 <div class="side-bar check-box">
-                    <form method="POST" action="">
                         <h4>Категории</h4>
                         <p>
                             {% for category in categories %}
-                            <label><input type="checkbox" class="form-check-input" value={{ category.name }} name="categories_checkbox"{% if category.name in choosed_categories %}checked{% endif %}>{{ category.name.capitalize() }}</input></label><br>
+                            <label class="label-checkbox"><input type="checkbox" class="form-check-input" value={{ category.name }} name="categories_checkbox"{% if category.name in choosed_categories %}checked{% endif %}>{{ category.name.capitalize() }}</input></label><br>
                             {% endfor %}
                         </p>
                         <input type="submit" class="btn btn-primary btn-block" type="sumbit" name="choose" value="Подобрать">
                         <input type="submit" class="btn btn-warning btn-block" type="sumbit" name="reset" value="Сбросить">
-                    </form>
                 </div>
             </aside>
             {% endif %}
             <section class="col-md-10">
                 {% if form %}
-                <form method="POST" action="" enctype="multipart/form-data">
                     <div class="container">
                         <div class="row justify-content-end no-gutters">
                             <div class="col-4">
@@ -36,7 +34,6 @@
                             </div>
                         </div>
                     </div>
-                </form>
                 {% endif %}
                 <table class="table">
                     {% for product in products %}
@@ -58,4 +55,6 @@
                     {% endfor %}
                 </table>
             </section>
+        </div>
+{% if form %}</form>{% endif %}
 {% endblock %}

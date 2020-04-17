@@ -73,7 +73,7 @@ def index():
                 'categories_checkbox'))
     session = db_session.create_session()
     products = session.query(Product).filter(
-        Product.is_checked, False if not Product.is_sold else True).all()
+        Product.is_checked, Product.is_sold != True).all()
     products = [
         product
         for product in filter(lambda x: choosed_categories <= set(
@@ -493,15 +493,14 @@ def balance():
 @login_required
 def products_check():
     session = db_session.create_session()
-    products = session.query(Product).filter(
-        True if not Product.is_checked else False).all()
+    products = session.query(Product).filter(Product.is_checked != True).all()
     return render_template('index.html', products=products)
 
 
 def main():
     db_session.global_init(os.path.join('db', 'GK-store.sqlite'))
 
-    app.run()
+    app.run(debug=True)
 
 
 if __name__ == '__main__':

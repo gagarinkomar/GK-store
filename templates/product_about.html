@@ -18,7 +18,7 @@
                 <b>Дата появления товара:</b> {{ product.checked_date.strftime('%H:%M %d.%m.%Y') }}<br>
                 {% endif %}
                 <b>Рейтинг продавца:</b> {% if product.user.count_rating %}{{ (product.user.sum_rating / product.user.count_rating)|round(1) }}{% else %}0{% endif %}<br>
-                <b>Количество транзакций продавца:</b> {{ product.user.count_transactions }}<br>
+                <b>Количество транзакций продавца:</b> {{ product.user.transactions|length }}<br>
                 <a href="/user_about/{{ product.user_id }}">{% if product.user.surname %}{{ product.user.surname }} {% endif %}{{ product.user.name }}</a>
             </p>
         </td>

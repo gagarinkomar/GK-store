@@ -18,7 +18,7 @@
                 <b>Email:</b> {{ user.email }}<br>
                 <b>Номер:</b> {{ user.phone_number }}<br>
                 <b>Дата регистрации:</b> {{ user.created_date.strftime('%H:%M %d.%m.%Y') }}<br>
-                <b>Количество транзакций:</b> {{ user.count_transactions }}<br>
+                <b>Количество транзакций:</b> {{ user.transactions|length }}<br>
                 <b>Рейтинг:</b> {% if user.count_rating %}{{ (user.sum_rating / user.count_rating)|round(1) }}{% else %}0{% endif %}
             </p>
         </td>
